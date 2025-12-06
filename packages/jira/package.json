@@ -55,12 +55,13 @@
     "@felixgeelhaar/sdk-core": "workspace:*"
   },
   "devDependencies": {
-    "eslint": "^9.16.0",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.0",
-    "vitest": "^2.1.8",
-    "zod": "^3.24.1"
+    "esbuild": "0.27.1",
+    "eslint": "^9.39.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.1",
+    "vitest": "^2.1.9",
+    "zod": "^3.25.76"
   },
   "keywords": [
     "jira",
