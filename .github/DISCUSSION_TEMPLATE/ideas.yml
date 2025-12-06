@@ -1,0 +1,109 @@
+labels: [idea]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Share Your Idea 💡
+
+        Have an idea for improving the SDK? We'd love to hear it!
+
+        **Note:** For specific feature requests with detailed requirements, consider opening a Feature Request issue instead.
+
+  - type: input
+    id: title
+    attributes:
+      label: Idea Title
+      description: A brief, descriptive title for your idea.
+      placeholder: Add support for...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: What category does your idea fall into?
+      options:
+        - New Feature
+        - API Enhancement
+        - Developer Experience
+        - Performance Improvement
+        - Documentation
+        - Testing
+        - Tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe your idea in detail.
+      placeholder: |
+        I think it would be great if...
+        This would help developers...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: What problem does this solve or what use case does it enable?
+      placeholder: |
+        This would be useful for...
+        Currently, users have to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example Usage
+      description: Show what the API might look like (if applicable).
+      render: typescript
+      placeholder: |
+        // Example of how this might work
+        const result = await client.newFeature({
+          option: 'value'
+        });
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Are there any alternative approaches or workarounds?
+      placeholder: |
+        Currently, this can be achieved by...
+        But it would be better if...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (Your Opinion)
+      description: How important is this to you?
+      options:
+        - Nice to have
+        - Would be helpful
+        - Important
+        - Critical
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be interested in contributing this feature?
+      options:
+        - label: I'd be willing to submit a PR for this idea
+        - label: I'd be willing to help design the API
+        - label: I'd be willing to test this feature
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information, mockups, or references.

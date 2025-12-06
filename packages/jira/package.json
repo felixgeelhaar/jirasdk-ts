@@ -1,0 +1,86 @@
+{
+  "name": "@felixgeelhaar/jira-sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Atlassian Jira REST API with Zod validation",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./schemas": {
+      "import": {
+        "types": "./dist/schemas/index.d.ts",
+        "default": "./dist/schemas/index.js"
+      },
+      "require": {
+        "types": "./dist/schemas/index.d.cts",
+        "default": "./dist/schemas/index.cjs"
+      }
+    },
+    "./services": {
+      "import": {
+        "types": "./dist/services/index.d.ts",
+        "default": "./dist/services/index.js"
+      },
+      "require": {
+        "types": "./dist/services/index.d.cts",
+        "default": "./dist/services/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "dev": "tsup --watch",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@felixgeelhaar/sdk-core": "workspace:*"
+  },
+  "devDependencies": {
+    "eslint": "^9.16.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^2.1.8",
+    "zod": "^3.24.1"
+  },
+  "keywords": [
+    "jira",
+    "atlassian",
+    "sdk",
+    "typescript",
+    "api",
+    "rest",
+    "client",
+    "zod"
+  ],
+  "license": "MIT",
+  "author": "Felix Geelhaar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/felixgeelhaar/jirasdk-ts.git",
+    "directory": "packages/jira"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": false
+}

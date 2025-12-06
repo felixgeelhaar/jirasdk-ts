@@ -1,0 +1,54 @@
+{
+  "name": "jirasdk-ts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TypeScript SDKs for Atlassian Cloud APIs",
+  "keywords": [
+    "jira",
+    "atlassian",
+    "sdk",
+    "typescript",
+    "rest-api",
+    "jira-cloud",
+    "jira-api",
+    "api-client",
+    "resilience",
+    "circuit-breaker",
+    "oauth2"
+  ],
+  "homepage": "https://github.com/felixgeelhaar/jirasdk-ts#readme",
+  "bugs": {
+    "url": "https://github.com/felixgeelhaar/jirasdk-ts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felixgeelhaar/jirasdk-ts.git"
+  },
+  "author": "Felix Geelhaar",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:watch": "pnpm -r test:watch",
+    "lint": "eslint packages/*/src",
+    "lint:fix": "eslint packages/*/src --fix",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean",
+    "format": "prettier --write \"packages/*/src/**/*.ts\"",
+    "format:check": "prettier --check \"packages/*/src/**/*.ts\""
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.1",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.16.0",
+    "globals": "16.5.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
+  }
+}

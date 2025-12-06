@@ -1,0 +1,80 @@
+labels: [discussion]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Start a Discussion 💬
+
+        Share thoughts, feedback, or start a conversation with the community!
+
+  - type: input
+    id: title
+    attributes:
+      label: Discussion Title
+      description: A clear, descriptive title for your discussion.
+      placeholder: Thoughts on...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Discussion Category
+      description: What would you like to discuss?
+      options:
+        - General Feedback
+        - Best Practices
+        - Use Cases
+        - SDK Roadmap
+        - Community
+        - Integrations
+        - Comparisons
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: content
+    attributes:
+      label: Discussion Content
+      description: Share your thoughts, questions, or feedback.
+      placeholder: |
+        I wanted to discuss...
+        I've been thinking about...
+        What does the community think about...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Background/Context
+      description: Provide any relevant background or context.
+      placeholder: |
+        I'm working on...
+        I noticed that...
+        Based on my experience...
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples (Optional)
+      description: Share code examples, links, or references.
+      placeholder: |
+        For example:
+        - Link to similar project
+        - Code snippet
+        - Documentation reference
+
+  - type: checkboxes
+    id: looking-for
+    attributes:
+      label: What are you looking for?
+      description: What kind of responses would be helpful?
+      options:
+        - label: Community opinions and feedback
+        - label: Best practices and recommendations
+        - label: Examples and use cases
+        - label: Technical discussion
+        - label: Future direction and roadmap input

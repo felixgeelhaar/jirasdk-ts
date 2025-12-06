@@ -1,0 +1,87 @@
+name: Question
+description: Ask a question about using the SDK
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question? We're here to help!
+
+        **Note:** For general discussions, feature ideas, or community help, consider using [GitHub Discussions](https://github.com/felixgeelhaar/jirasdk-ts/discussions) instead.
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Which package is your question about?
+      options:
+        - "@felixgeelhaar/jira-sdk"
+        - "@felixgeelhaar/sdk-core"
+        - "General/Setup"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What topic does your question relate to?
+      options:
+        - Authentication
+        - API Usage
+        - Configuration
+        - Error Handling
+        - TypeScript Types
+        - Middleware
+        - Resilience Features
+        - Testing
+        - Deployment
+        - Migration
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: How do I...
+    validations:
+      required: true
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What Have You Tried?
+      description: What have you already attempted or researched?
+      placeholder: |
+        - Read the documentation at...
+        - Tried the following code...
+        - Searched for...
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Relevant Code
+      description: If applicable, share code related to your question.
+      render: typescript
+      placeholder: |
+        import { createJiraClient } from '@felixgeelhaar/jira-sdk';
+
+        // Your code here...
+
+  - type: input
+    id: version
+    attributes:
+      label: Package Version
+      description: What version are you using?
+      placeholder: "1.0.0"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information that might help answer your question.

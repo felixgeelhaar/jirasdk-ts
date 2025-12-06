@@ -1,0 +1,157 @@
+name: Performance Issue
+description: Report performance problems or suggest optimizations
+title: "[Performance]: "
+labels: ["performance"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a performance issue! Please provide as much detail as possible.
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Which package is affected?
+      options:
+        - "@felixgeelhaar/jira-sdk"
+        - "@felixgeelhaar/sdk-core"
+        - "Multiple packages"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Package Version
+      description: What version are you using?
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Performance Impact
+      description: How severe is the performance issue?
+      options:
+        - Critical (Unusable)
+        - High (Significant slowdown)
+        - Medium (Noticeable delay)
+        - Low (Minor optimization opportunity)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Performance Area
+      description: What aspect of performance is affected?
+      options:
+        - Response time
+        - Memory usage
+        - CPU usage
+        - Network requests
+        - Bundle size
+        - Startup time
+        - Throughput
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Issue Description
+      description: Describe the performance problem you're experiencing.
+      placeholder: When calling X method with Y data size, the response takes...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce the performance issue?
+      placeholder: |
+        1. Create client with...
+        2. Call method with N items...
+        3. Observe slow response time...
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Reproduction Code
+      description: Provide code that demonstrates the performance issue.
+      render: typescript
+      placeholder: |
+        import { createJiraClient } from '@felixgeelhaar/jira-sdk';
+
+        const client = createJiraClient({ /* config */ });
+
+        // Code that shows performance issue
+        const start = Date.now();
+        const result = await client.someMethod();
+        console.log('Time taken:', Date.now() - start, 'ms');
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Performance Metrics
+      description: Share any performance measurements you've collected.
+      placeholder: |
+        - Response time: 5000ms (expected: <500ms)
+        - Memory usage: 500MB (expected: <100MB)
+        - Number of requests: 100 (expected: <10)
+        - Bundle size: 2MB (expected: <500KB)
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Performance
+      description: What performance would you expect?
+      placeholder: The operation should complete in less than...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Provide details about your environment.
+      value: |
+        - Node.js version:
+        - Operating System:
+        - CPU:
+        - Memory:
+        - Network conditions:
+    validations:
+      required: true
+
+  - type: textarea
+    id: analysis
+    attributes:
+      label: Analysis/Profiling
+      description: Have you done any profiling or analysis? Share your findings.
+      placeholder: |
+        Profiling results show that:
+        - Method X takes 80% of execution time
+        - N+1 query problem detected
+        - Large object allocations in...
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Optimization
+      description: If you have ideas for optimization, please share them.
+      placeholder: Consider caching the result, using batch requests, etc.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or profiling data.

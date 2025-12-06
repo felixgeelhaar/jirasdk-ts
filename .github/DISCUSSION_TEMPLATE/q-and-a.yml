@@ -1,0 +1,103 @@
+labels: [question]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Ask a Question ❓
+
+        Get help from the community and maintainers!
+
+        **Before asking:**
+        - Search existing discussions and issues
+        - Check the [documentation](https://github.com/felixgeelhaar/jirasdk-ts#readme)
+        - Review the [examples](https://github.com/felixgeelhaar/jirasdk-ts#quick-start)
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      description: What is your question about?
+      options:
+        - Getting Started
+        - Authentication
+        - API Usage
+        - Configuration
+        - Error Handling
+        - TypeScript/Types
+        - Middleware
+        - Resilience (Circuit Breaker, Retry, Rate Limiting)
+        - Testing
+        - Performance
+        - Deployment
+        - Migration
+        - Best Practices
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know? Be as specific as possible.
+      placeholder: |
+        How do I...
+        What's the best way to...
+        I'm trying to understand...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide context about what you're trying to achieve.
+      placeholder: |
+        I'm building a tool that...
+        I need to...
+        My goal is to...
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What Have You Tried?
+      description: What have you already attempted?
+      placeholder: |
+        - I tried using...
+        - I read the documentation about...
+        - I searched for...
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code Example
+      description: Share relevant code (optional but helpful).
+      render: typescript
+      placeholder: |
+        import { createJiraClient } from '@felixgeelhaar/jira-sdk';
+
+        // Your code here...
+
+  - type: input
+    id: version
+    attributes:
+      label: Package Version
+      description: Which version are you using?
+      placeholder: "1.0.0"
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error Message (if applicable)
+      description: If you're getting an error, paste it here.
+      render: shell
+      placeholder: |
+        Error: ...
+        at ...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other details that might be helpful.

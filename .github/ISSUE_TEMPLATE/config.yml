@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/felixgeelhaar/jirasdk-ts#readme
+    about: Check the README and package documentation
+  - name: 💬 GitHub Discussions
+    url: https://github.com/felixgeelhaar/jirasdk-ts/discussions
+    about: Ask questions, share ideas, and get community help
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/felixgeelhaar/jirasdk-ts/security/advisories/new
+    about: Report security vulnerabilities privately (DO NOT open a public issue)

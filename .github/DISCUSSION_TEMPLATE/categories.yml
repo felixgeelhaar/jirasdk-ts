@@ -1,0 +1,44 @@
+# GitHub Discussions Category Configuration
+# This file helps organize discussions into meaningful categories
+
+# Note: Actual category creation is done through GitHub's web interface
+# This file serves as documentation for the recommended category structure
+
+recommended_categories:
+  - name: "💬 General"
+    description: "General discussions about the SDK, community, and anything else"
+    slug: "general"
+
+  - name: "💡 Ideas"
+    description: "Share and discuss ideas for new features and improvements"
+    slug: "ideas"
+
+  - name: "❓ Q&A"
+    description: "Ask questions and get help from the community"
+    slug: "q-and-a"
+    enable_answers: true
+
+  - name: "🎉 Show and Tell"
+    description: "Share projects you've built using the SDK"
+    slug: "show-and-tell"
+
+  - name: "📣 Announcements"
+    description: "Official announcements about releases, features, and changes"
+    slug: "announcements"
+    maintainers_only: true
+
+  - name: "🛠️ Development"
+    description: "Discuss SDK development, architecture, and contributions"
+    slug: "development"
+
+  - name: "🔌 Integrations"
+    description: "Discuss integrations with other tools and platforms"
+    slug: "integrations"
+
+# To set up these categories:
+# 1. Go to your repository on GitHub
+# 2. Navigate to Settings > Features
+# 3. Enable Discussions
+# 4. Go to Discussions tab
+# 5. Click "Categories" in the sidebar
+# 6. Create each category using the information above

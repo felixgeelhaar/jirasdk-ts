@@ -1,0 +1,82 @@
+labels: [show-and-tell]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Share Your Project! 🎉
+
+        We'd love to see what you're building with Jira SDK TypeScript!
+
+  - type: input
+    id: project-name
+    attributes:
+      label: Project Name
+      description: What's the name of your project?
+      placeholder: My Awesome Jira Integration
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Project Description
+      description: Tell us about your project and how you're using the SDK.
+      placeholder: |
+        I built a tool that automatically...
+        It uses the Jira SDK to...
+    validations:
+      required: true
+
+  - type: input
+    id: link
+    attributes:
+      label: Project Link
+      description: Link to your project (GitHub, website, demo, etc.)
+      placeholder: https://github.com/username/project
+
+  - type: dropdown
+    id: packages-used
+    attributes:
+      label: Packages Used
+      description: Which packages are you using?
+      multiple: true
+      options:
+        - "@felixgeelhaar/jira-sdk"
+        - "@felixgeelhaar/sdk-core"
+
+  - type: textarea
+    id: highlights
+    attributes:
+      label: Key Features
+      description: What are the key features of your project?
+      placeholder: |
+        - Automated issue creation
+        - Custom dashboard
+        - Integration with other tools
+
+  - type: textarea
+    id: code-snippet
+    attributes:
+      label: Code Snippet (Optional)
+      description: Share an interesting code snippet from your project.
+      render: typescript
+      placeholder: |
+        // Example of how you're using the SDK
+        const client = createJiraClient({ ... });
+
+  - type: textarea
+    id: lessons
+    attributes:
+      label: Lessons Learned
+      description: What did you learn while building this? Any tips for others?
+      placeholder: |
+        I learned that...
+        One tip I'd share is...
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Demo
+      description: Share screenshots, GIFs, or demo videos.
+      placeholder: Drag and drop images here or paste links...
