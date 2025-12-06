@@ -200,7 +200,7 @@ const client = createJiraClient({
 
 ### Prerequisites
 
-- Node.js >= 18.0.0
+- Node.js >= 20.0.0
 - pnpm >= 9.0.0
 
 ### Setup

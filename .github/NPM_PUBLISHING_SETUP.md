@@ -232,7 +232,7 @@ After publishing, verify provenance is working:
 **Solution**:
 1. Verify workflow has `id-token: write` permission (✅ already set)
 2. Check publish command includes `--provenance` flag (✅ already set)
-3. Ensure using npm >= 9.5.0 (satisfied by Node.js 18+)
+3. Ensure using npm >= 9.5.0 (satisfied by Node.js 20+)
 
 ### Package not found on NPM
 
