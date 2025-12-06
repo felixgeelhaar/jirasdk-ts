@@ -33,3 +33,6 @@ npm-debug.log*
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+# Claude Code
+.claude/settings.local.json
