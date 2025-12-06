@@ -63,7 +63,7 @@ export class OAuth2Auth implements AuthProvider {
   constructor(config: OAuth2AuthConfig) {
     const result = OAuth2AuthConfigSchema.safeParse(config);
     if (!result.success) {
-      throw new AuthConfigError('Invalid OAuth2 auth configuration', result.error.errors);
+      throw new AuthConfigError('Invalid OAuth2 auth configuration', result.error.issues);
     }
 
     const data = result.data;
@@ -153,7 +153,7 @@ export class OAuth2Auth implements AuthProvider {
 
       if (!parsed.success) {
         throw new TokenRefreshError('Invalid token response from server', {
-          validationErrors: parsed.error.errors,
+          validationErrors: parsed.error.issues,
         });
       }
 

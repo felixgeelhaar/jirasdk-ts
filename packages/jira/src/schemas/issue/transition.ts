@@ -13,7 +13,7 @@ export const TransitionSchema = z.object({
   isInitial: z.boolean().optional(),
   isConditional: z.boolean().optional(),
   isLooped: z.boolean().optional(),
-  fields: z.record(z.unknown()).optional(),
+  fields: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type Transition = z.infer<typeof TransitionSchema>;
@@ -35,10 +35,10 @@ export const DoTransitionInputSchema = z.object({
   transition: z.object({
     id: z.string(),
   }),
-  fields: z.record(z.unknown()).optional(),
-  update: z.record(z.array(z.record(z.unknown()))).optional(),
-  historyMetadata: z.record(z.unknown()).optional(),
-  properties: z.array(z.record(z.unknown())).optional(),
+  fields: z.record(z.string(), z.unknown()).optional(),
+  update: z.record(z.string(), z.array(z.record(z.string(), z.unknown()))).optional(),
+  historyMetadata: z.record(z.string(), z.unknown()).optional(),
+  properties: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
 export type DoTransitionInput = z.infer<typeof DoTransitionInputSchema>;

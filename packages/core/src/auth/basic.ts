@@ -27,7 +27,7 @@ export class BasicAuth implements AuthProvider {
   constructor(config: BasicAuthConfig) {
     const result = BasicAuthConfigSchema.safeParse(config);
     if (!result.success) {
-      throw new AuthConfigError('Invalid basic auth configuration', result.error.errors);
+      throw new AuthConfigError('Invalid basic auth configuration', result.error.issues);
     }
 
     const { username, password } = result.data;

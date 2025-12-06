@@ -12,8 +12,8 @@ const SearchResultSchema = z.object({
   total: z.number(),
   issues: z.array(IssueSchema),
   warningMessages: z.array(z.string()).optional(),
-  names: z.record(z.string()).optional(),
-  schema: z.record(z.unknown()).optional(),
+  names: z.record(z.string(), z.string()).optional(),
+  schema: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type SearchResult = z.infer<typeof SearchResultSchema>;

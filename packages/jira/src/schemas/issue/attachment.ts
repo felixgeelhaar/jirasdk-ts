@@ -29,7 +29,7 @@ export const AttachmentMetadataSchema = z.object({
   created: OptionalJiraDateTimeSchema,
   size: z.number(),
   mimeType: z.string(),
-  properties: z.record(z.unknown()).optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
   content: z.string().url().optional(),
   thumbnail: z.string().url().optional(),
 });

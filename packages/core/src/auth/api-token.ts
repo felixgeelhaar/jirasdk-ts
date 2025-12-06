@@ -31,7 +31,7 @@ export class ApiTokenAuth implements AuthProvider {
   constructor(config: ApiTokenAuthConfig) {
     const result = ApiTokenAuthConfigSchema.safeParse(config);
     if (!result.success) {
-      throw new AuthConfigError('Invalid API token auth configuration', result.error.errors);
+      throw new AuthConfigError('Invalid API token auth configuration', result.error.issues);
     }
 
     this.email = result.data.email;

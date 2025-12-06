@@ -28,7 +28,7 @@ export class PatAuth implements AuthProvider {
   constructor(config: PatAuthConfig) {
     const result = PatAuthConfigSchema.safeParse(config);
     if (!result.success) {
-      throw new AuthConfigError('Invalid PAT auth configuration', result.error.errors);
+      throw new AuthConfigError('Invalid PAT auth configuration', result.error.issues);
     }
 
     this.token = result.data.token;

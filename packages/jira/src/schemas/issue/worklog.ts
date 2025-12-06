@@ -33,7 +33,7 @@ export const WorklogSchema = z.object({
   timeSpentSeconds: z.number().int().min(0),
   visibility: WorklogVisibilitySchema.optional(),
   issueId: z.string().optional(),
-  properties: z.array(z.record(z.unknown())).optional(),
+  properties: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
 export type Worklog = z.infer<typeof WorklogSchema>;
@@ -47,7 +47,7 @@ export const AddWorklogInputSchema = z.object({
   timeSpent: z.string().optional(), // e.g., "1h 30m"
   timeSpentSeconds: z.number().int().min(0).optional(),
   visibility: WorklogVisibilitySchema.optional(),
-  properties: z.array(z.record(z.unknown())).optional(),
+  properties: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
 export type AddWorklogInput = z.infer<typeof AddWorklogInputSchema>;

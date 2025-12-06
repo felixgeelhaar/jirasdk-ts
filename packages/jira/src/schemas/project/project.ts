@@ -38,7 +38,7 @@ export const ProjectSchema = z.object({
   email: z.string().email().optional(),
   assigneeType: z.enum(['PROJECT_LEAD', 'UNASSIGNED']).optional(),
   versions: z.array(VersionSchema).optional(),
-  roles: z.record(z.string()).optional(),
+  roles: z.record(z.string(), z.string()).optional(),
   avatarUrls: AvatarUrlsSchema.optional(),
   projectCategory: ProjectCategorySchema.optional(),
   projectTypeKey: ProjectTypeSchema.optional(),
@@ -56,8 +56,8 @@ export const ProjectSchema = z.object({
   archivedBy: UserRefSchema.optional(),
   uuid: z.string().uuid().optional(),
   // Additional properties for detailed responses
-  properties: z.record(z.unknown()).optional(),
-  permissions: z.record(z.unknown()).optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
+  permissions: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type Project = z.infer<typeof ProjectSchema>;

@@ -30,7 +30,7 @@ export const CommentSchema = z.object({
   visibility: CommentVisibilitySchema.optional(),
   jsdPublic: z.boolean().optional(),
   renderedBody: z.string().optional(),
-  properties: z.array(z.record(z.unknown())).optional(),
+  properties: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
 export type Comment = z.infer<typeof CommentSchema>;
@@ -41,7 +41,7 @@ export type Comment = z.infer<typeof CommentSchema>;
 export const AddCommentInputSchema = z.object({
   body: AdfOrStringSchema,
   visibility: CommentVisibilitySchema.optional(),
-  properties: z.array(z.record(z.unknown())).optional(),
+  properties: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
 export type AddCommentInput = z.infer<typeof AddCommentInputSchema>;

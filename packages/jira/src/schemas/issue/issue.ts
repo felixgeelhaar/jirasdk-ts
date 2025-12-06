@@ -135,9 +135,9 @@ export const IssueSchema = z.object({
   self: z.string().url(),
   key: z.string(),
   fields: IssueFieldsSchema,
-  renderedFields: z.record(z.unknown()).optional(),
-  names: z.record(z.string()).optional(),
-  schema: z.record(z.unknown()).optional(),
+  renderedFields: z.record(z.string(), z.unknown()).optional(),
+  names: z.record(z.string(), z.string()).optional(),
+  schema: z.record(z.string(), z.unknown()).optional(),
   transitions: z
     .array(
       z.object({
@@ -151,18 +151,18 @@ export const IssueSchema = z.object({
       })
     )
     .optional(),
-  operations: z.record(z.unknown()).optional(),
-  editmeta: z.record(z.unknown()).optional(),
+  operations: z.record(z.string(), z.unknown()).optional(),
+  editmeta: z.record(z.string(), z.unknown()).optional(),
   changelog: z
     .object({
       startAt: z.number(),
       maxResults: z.number(),
       total: z.number(),
-      histories: z.array(z.record(z.unknown())),
+      histories: z.array(z.record(z.string(), z.unknown())),
     })
     .optional(),
-  versionedRepresentations: z.record(z.unknown()).optional(),
-  fieldsToInclude: z.record(z.unknown()).optional(),
+  versionedRepresentations: z.record(z.string(), z.unknown()).optional(),
+  fieldsToInclude: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type Issue = z.infer<typeof IssueSchema>;
@@ -196,7 +196,7 @@ export type CreateIssueFields = z.infer<typeof CreateIssueFieldsSchema>;
  */
 export const CreateIssueInputSchema = z.object({
   fields: CreateIssueFieldsSchema,
-  update: z.record(z.array(z.record(z.unknown()))).optional(),
+  update: z.record(z.string(), z.array(z.record(z.string(), z.unknown()))).optional(),
   transition: z.object({ id: z.string() }).optional(),
 });
 
@@ -206,11 +206,11 @@ export type CreateIssueInput = z.infer<typeof CreateIssueInputSchema>;
  * Update issue input
  */
 export const UpdateIssueInputSchema = z.object({
-  fields: z.record(z.unknown()).optional(),
-  update: z.record(z.array(z.record(z.unknown()))).optional(),
+  fields: z.record(z.string(), z.unknown()).optional(),
+  update: z.record(z.string(), z.array(z.record(z.string(), z.unknown()))).optional(),
   transition: z.object({ id: z.string() }).optional(),
-  historyMetadata: z.record(z.unknown()).optional(),
-  properties: z.array(z.record(z.unknown())).optional(),
+  historyMetadata: z.record(z.string(), z.unknown()).optional(),
+  properties: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
 export type UpdateIssueInput = z.infer<typeof UpdateIssueInputSchema>;
@@ -228,7 +228,7 @@ export const CreateIssueResponseSchema = z.object({
       errorCollection: z
         .object({
           errorMessages: z.array(z.string()).optional(),
-          errors: z.record(z.string()).optional(),
+          errors: z.record(z.string(), z.string()).optional(),
         })
         .optional(),
     })

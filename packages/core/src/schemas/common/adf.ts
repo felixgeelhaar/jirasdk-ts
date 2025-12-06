@@ -10,7 +10,7 @@ import { z } from 'zod';
  */
 export const AdfMarkSchema = z.object({
   type: z.enum(['strong', 'em', 'strike', 'underline', 'code', 'subsup', 'textColor', 'link']),
-  attrs: z.record(z.unknown()).optional(),
+  attrs: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type AdfMark = z.infer<typeof AdfMarkSchema>;
@@ -21,7 +21,7 @@ export type AdfMark = z.infer<typeof AdfMarkSchema>;
 export const AdfNodeSchema: z.ZodType<AdfNode> = z.lazy(() =>
   z.object({
     type: z.string(),
-    attrs: z.record(z.unknown()).optional(),
+    attrs: z.record(z.string(), z.unknown()).optional(),
     content: z.array(AdfNodeSchema).optional(),
     text: z.string().optional(),
     marks: z.array(AdfMarkSchema).optional(),
