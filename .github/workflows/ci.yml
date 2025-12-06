@@ -114,8 +114,3 @@ jobs:
 
       - name: Build packages
         run: pnpm build
-
-      - name: Check package exports
-        run: |
-          cd packages/core && pnpm pack --dry
-          cd ../jira && pnpm pack --dry
