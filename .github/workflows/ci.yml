@@ -117,5 +117,5 @@ jobs:
 
       - name: Check package exports
         run: |
-          cd packages/core && pnpm pack --dry-run
-          cd ../jira && pnpm pack --dry-run
+          cd packages/core && pnpm pack --dry
+          cd ../jira && pnpm pack --dry
