@@ -1,4 +1,4 @@
-import type { ZodIssue } from 'zod';
+import type { z } from 'zod';
 import { JiraSdkError } from './base.error.js';
 
 /**
@@ -39,9 +39,9 @@ export class TokenExpiredError extends AuthError {
  */
 export class AuthConfigError extends AuthError {
   override readonly code: string = 'AUTH_CONFIG_ERROR';
-  readonly validationErrors: ZodIssue[] | undefined;
+  readonly validationErrors: z.core.$ZodIssue[] | undefined;
 
-  constructor(message: string, validationErrors?: ZodIssue[]) {
+  constructor(message: string, validationErrors?: z.core.$ZodIssue[]) {
     super(message, validationErrors !== undefined ? { validationErrors } : undefined);
     this.validationErrors = validationErrors;
   }

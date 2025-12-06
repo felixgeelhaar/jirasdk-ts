@@ -5,15 +5,15 @@ import { UserRefSchema, OptionalJiraDateTimeSchema } from '@felixgeelhaar/sdk-co
  * Issue Attachment
  */
 export const AttachmentSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   filename: z.string(),
   author: UserRefSchema.optional(),
   created: OptionalJiraDateTimeSchema,
   size: z.number().int().min(0),
   mimeType: z.string(),
-  content: z.string().url(),
-  thumbnail: z.string().url().optional(),
+  content: z.url(),
+  thumbnail: z.url().optional(),
 });
 
 export type Attachment = z.infer<typeof AttachmentSchema>;
@@ -23,15 +23,15 @@ export type Attachment = z.infer<typeof AttachmentSchema>;
  */
 export const AttachmentMetadataSchema = z.object({
   id: z.number(),
-  self: z.string().url(),
+  self: z.url(),
   filename: z.string(),
   author: UserRefSchema,
   created: OptionalJiraDateTimeSchema,
   size: z.number(),
   mimeType: z.string(),
   properties: z.record(z.string(), z.unknown()).optional(),
-  content: z.string().url().optional(),
-  thumbnail: z.string().url().optional(),
+  content: z.url().optional(),
+  thumbnail: z.url().optional(),
 });
 
 export type AttachmentMetadata = z.infer<typeof AttachmentMetadataSchema>;

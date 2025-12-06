@@ -13,7 +13,7 @@ export type PaginationParams = z.infer<typeof PaginationParamsSchema>;
 /**
  * Standard paginated response wrapper
  */
-export function createPaginatedResponseSchema<T extends z.ZodTypeAny>(
+export function createPaginatedResponseSchema<T extends z.ZodType>(
   itemSchema: T
 ): z.ZodObject<{
   startAt: z.ZodNumber;

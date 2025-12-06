@@ -13,7 +13,7 @@ import {
  * Project Reference (minimal)
  */
 export const ProjectRefSchema = z.object({
-  self: z.string().url().optional(),
+  self: z.url().optional(),
   id: z.string(),
   key: z.string(),
   name: z.string(),
@@ -26,7 +26,7 @@ export type ProjectRef = z.infer<typeof ProjectRefSchema>;
  * Full Project Schema
  */
 export const ProjectSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   key: z.string(),
   name: z.string(),
@@ -34,8 +34,8 @@ export const ProjectSchema = z.object({
   lead: ProjectLeadSchema.optional(),
   components: z.array(ComponentSchema).optional(),
   issueTypes: z.array(IssueTypeSchema).optional(),
-  url: z.string().url().optional(),
-  email: z.string().email().optional(),
+  url: z.url().optional(),
+  email: z.email().optional(),
   assigneeType: z.enum(['PROJECT_LEAD', 'UNASSIGNED']).optional(),
   versions: z.array(VersionSchema).optional(),
   roles: z.record(z.string(), z.string()).optional(),
@@ -54,7 +54,7 @@ export const ProjectSchema = z.object({
   archived: z.boolean().optional(),
   archivedDate: z.string().optional(),
   archivedBy: UserRefSchema.optional(),
-  uuid: z.string().uuid().optional(),
+  uuid: z.uuid().optional(),
   // Additional properties for detailed responses
   properties: z.record(z.string(), z.unknown()).optional(),
   permissions: z.record(z.string(), z.unknown()).optional(),
@@ -71,7 +71,7 @@ export const CreateProjectInputSchema = z.object({
   description: z.string().optional(),
   lead: z.string().optional(), // Account ID
   leadAccountId: z.string().optional(),
-  url: z.string().url().optional(),
+  url: z.url().optional(),
   assigneeType: z.enum(['PROJECT_LEAD', 'UNASSIGNED']).optional(),
   avatarId: z.number().int().optional(),
   issueSecurityScheme: z.number().int().optional(),
@@ -97,7 +97,7 @@ export const UpdateProjectInputSchema = z.object({
   description: z.string().optional(),
   lead: z.string().optional(),
   leadAccountId: z.string().optional(),
-  url: z.string().url().nullable().optional(),
+  url: z.url().nullable().optional(),
   assigneeType: z.enum(['PROJECT_LEAD', 'UNASSIGNED']).optional(),
   avatarId: z.number().int().optional(),
   issueSecurityScheme: z.number().int().optional(),
@@ -112,7 +112,7 @@ export type UpdateProjectInput = z.infer<typeof UpdateProjectInputSchema>;
  * Project Search Result
  */
 export const ProjectSearchResultSchema = z.object({
-  self: z.string().url().optional(),
+  self: z.url().optional(),
   maxResults: z.number().int(),
   startAt: z.number().int(),
   total: z.number().int(),

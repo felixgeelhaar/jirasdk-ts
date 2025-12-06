@@ -5,7 +5,7 @@ import { UserRefSchema } from '@felixgeelhaar/sdk-core/schemas';
  * Issue Watchers
  */
 export const WatchersSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   watchCount: z.number().int().min(0),
   isWatching: z.boolean(),
   watchers: z.array(UserRefSchema).optional(),

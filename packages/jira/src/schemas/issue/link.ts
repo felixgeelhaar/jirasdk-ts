@@ -9,7 +9,7 @@ export const IssueLinkTypeSchema = z.object({
   name: z.string(),
   inward: z.string(),
   outward: z.string(),
-  self: z.string().url().optional(),
+  self: z.url().optional(),
 });
 
 export type IssueLinkType = z.infer<typeof IssueLinkTypeSchema>;
@@ -19,7 +19,7 @@ export type IssueLinkType = z.infer<typeof IssueLinkTypeSchema>;
  */
 export const IssueLinkSchema = z.object({
   id: z.string(),
-  self: z.string().url().optional(),
+  self: z.url().optional(),
   type: IssueLinkTypeSchema,
   inwardIssue: IssueRefSchema.optional(),
   outwardIssue: IssueRefSchema.optional(),

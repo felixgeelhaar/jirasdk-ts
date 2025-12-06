@@ -35,8 +35,8 @@ export type AuthType = 'api-token' | 'pat' | 'basic' | 'oauth2' | 'none';
  * API Token auth configuration schema
  */
 export const ApiTokenAuthConfigSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  apiToken: z.string().min(1, 'API token is required'),
+  email: z.email({ error: 'Invalid email address' }),
+  apiToken: z.string().min(1, { error: 'API token is required' }),
 });
 
 export type ApiTokenAuthConfig = z.infer<typeof ApiTokenAuthConfigSchema>;
@@ -68,7 +68,7 @@ export const OAuth2AuthConfigSchema = z.object({
   clientSecret: z.string().min(1, 'Client secret is required'),
   accessToken: z.string().optional(),
   refreshToken: z.string().optional(),
-  tokenEndpoint: z.string().url().optional(),
+  tokenEndpoint: z.url().optional(),
   scopes: z.array(z.string()).optional(),
   expiresAt: z.number().int().optional(),
 });

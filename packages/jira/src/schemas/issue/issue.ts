@@ -26,7 +26,7 @@ import {
 export const IssueRefSchema = z.object({
   id: z.string().optional(),
   key: z.string(),
-  self: z.string().url().optional(),
+  self: z.url().optional(),
   fields: z
     .object({
       summary: z.string().optional(),
@@ -93,14 +93,14 @@ export const IssueFieldsSchema = z
     // Votes & Watches
     votes: z
       .object({
-        self: z.string().url(),
+        self: z.url(),
         votes: z.number(),
         hasVoted: z.boolean(),
       })
       .optional(),
     watches: z
       .object({
-        self: z.string().url(),
+        self: z.url(),
         watchCount: z.number(),
         isWatching: z.boolean(),
       })
@@ -122,7 +122,7 @@ export const IssueFieldsSchema = z
       })
       .optional(),
   })
-  .passthrough(); // Allow custom fields (customfield_*)
+  .loose(); // Allow custom fields (customfield_*)
 
 export type IssueFields = z.infer<typeof IssueFieldsSchema>;
 
@@ -132,7 +132,7 @@ export type IssueFields = z.infer<typeof IssueFieldsSchema>;
 export const IssueSchema = z.object({
   expand: z.string().optional(),
   id: z.string(),
-  self: z.string().url(),
+  self: z.url(),
   key: z.string(),
   fields: IssueFieldsSchema,
   renderedFields: z.record(z.string(), z.unknown()).optional(),
@@ -187,7 +187,7 @@ export const CreateIssueFieldsSchema = z
     duedate: z.string().optional(),
     // Custom fields via passthrough
   })
-  .passthrough();
+  .loose();
 
 export type CreateIssueFields = z.infer<typeof CreateIssueFieldsSchema>;
 
@@ -221,7 +221,7 @@ export type UpdateIssueInput = z.infer<typeof UpdateIssueInputSchema>;
 export const CreateIssueResponseSchema = z.object({
   id: z.string(),
   key: z.string(),
-  self: z.string().url(),
+  self: z.url(),
   transition: z
     .object({
       status: z.number(),

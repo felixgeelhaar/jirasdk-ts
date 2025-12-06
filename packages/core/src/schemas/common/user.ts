@@ -4,10 +4,10 @@ import { z } from 'zod';
  * Avatar URLs in various sizes
  */
 export const AvatarUrlsSchema = z.object({
-  '48x48': z.string().url().optional(),
-  '24x24': z.string().url().optional(),
-  '16x16': z.string().url().optional(),
-  '32x32': z.string().url().optional(),
+  '48x48': z.url().optional(),
+  '24x24': z.url().optional(),
+  '16x16': z.url().optional(),
+  '32x32': z.url().optional(),
 });
 
 export type AvatarUrls = z.infer<typeof AvatarUrlsSchema>;
@@ -23,10 +23,10 @@ export type AccountType = z.infer<typeof AccountTypeSchema>;
  * Jira user representation
  */
 export const UserSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   accountId: z.string(),
   accountType: AccountTypeSchema.optional(),
-  emailAddress: z.string().email().optional(),
+  emailAddress: z.email().optional(),
   displayName: z.string(),
   active: z.boolean(),
   timeZone: z.string().optional(),
@@ -40,7 +40,7 @@ export type User = z.infer<typeof UserSchema>;
  * Partial user reference (used in responses where not all fields are included)
  */
 export const UserRefSchema = z.object({
-  self: z.string().url().optional(),
+  self: z.url().optional(),
   accountId: z.string(),
   displayName: z.string().optional(),
   active: z.boolean().optional(),

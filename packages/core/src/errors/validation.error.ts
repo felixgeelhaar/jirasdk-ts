@@ -1,4 +1,4 @@
-import type { ZodError, ZodIssue } from 'zod';
+import type { ZodError, z } from 'zod';
 import { JiraSdkError } from './base.error.js';
 
 /**
@@ -8,7 +8,7 @@ export class ValidationError extends JiraSdkError {
   readonly code: string = 'VALIDATION_ERROR';
 
   /** Validation issues from Zod */
-  readonly issues: ZodIssue[];
+  readonly issues: z.core.$ZodIssue[];
 
   constructor(message: string, zodError: ZodError) {
     super(message, {
@@ -63,7 +63,7 @@ export class ResponseValidationError extends ValidationError {
 }
 
 // Helper function
-function formatZodIssues(issues: ZodIssue[]): string {
+function formatZodIssues(issues: z.core.$ZodIssue[]): string {
   return issues
     .map((issue) => {
       const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : '';

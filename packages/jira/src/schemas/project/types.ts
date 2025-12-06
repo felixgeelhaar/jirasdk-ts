@@ -5,7 +5,7 @@ import { AvatarUrlsSchema } from '@felixgeelhaar/sdk-core/schemas';
  * Project Category
  */
 export const ProjectCategorySchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
@@ -31,7 +31,7 @@ export type ProjectStyle = z.infer<typeof ProjectStyleSchema>;
  * Project Lead
  */
 export const ProjectLeadSchema = z.object({
-  self: z.string().url().optional(),
+  self: z.url().optional(),
   accountId: z.string(),
   displayName: z.string(),
   active: z.boolean().optional(),

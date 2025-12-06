@@ -5,11 +5,11 @@ import { AvatarUrlsSchema } from '@felixgeelhaar/sdk-core/schemas';
  * Issue Type
  */
 export const IssueTypeSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  iconUrl: z.string().url().optional(),
+  iconUrl: z.url().optional(),
   subtask: z.boolean(),
   avatarId: z.number().optional(),
   hierarchyLevel: z.number().optional(),
@@ -31,7 +31,7 @@ export type IssueTypeInput = z.infer<typeof IssueTypeInputSchema>;
  * Status Category
  */
 export const StatusCategorySchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.number(),
   key: z.string(),
   colorName: z.string(),
@@ -44,11 +44,11 @@ export type StatusCategory = z.infer<typeof StatusCategorySchema>;
  * Issue Status
  */
 export const IssueStatusSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  iconUrl: z.string().url().optional(),
+  iconUrl: z.url().optional(),
   statusCategory: StatusCategorySchema.optional(),
 });
 
@@ -58,11 +58,11 @@ export type IssueStatus = z.infer<typeof IssueStatusSchema>;
  * Issue Priority
  */
 export const IssuePrioritySchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  iconUrl: z.string().url().optional(),
+  iconUrl: z.url().optional(),
 });
 
 export type IssuePriority = z.infer<typeof IssuePrioritySchema>;
@@ -81,7 +81,7 @@ export type PriorityInput = z.infer<typeof PriorityInputSchema>;
  * Issue Resolution
  */
 export const IssueResolutionSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
@@ -103,7 +103,7 @@ export type ResolutionInput = z.infer<typeof ResolutionInputSchema>;
  * Project reference in issue
  */
 export const IssueProjectSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   key: z.string(),
   name: z.string(),
@@ -128,7 +128,7 @@ export type ProjectInput = z.infer<typeof ProjectInputSchema>;
  * Component
  */
 export const ComponentSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
@@ -150,7 +150,7 @@ export type ComponentInput = z.infer<typeof ComponentInputSchema>;
  * Version (Fix Version / Affects Version)
  */
 export const VersionSchema = z.object({
-  self: z.string().url(),
+  self: z.url(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),

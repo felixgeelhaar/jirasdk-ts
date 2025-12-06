@@ -123,7 +123,7 @@ describe('ValidationError', () => {
 
 describe('ConfigValidationError', () => {
   it('should create from ZodError', () => {
-    const schema = z.object({ host: z.string().url() });
+    const schema = z.object({ host: z.url() });
     try {
       schema.parse({ host: 'not-a-url' });
     } catch (e) {

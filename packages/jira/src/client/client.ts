@@ -26,7 +26,7 @@ const SDK_VERSION = '0.1.0';
  * Configuration schema for validation
  */
 const ConfigSchema = z.object({
-  host: z.string().url('Host must be a valid URL'),
+  host: z.url({ error: 'Host must be a valid URL' }),
   apiVersion: z.enum(['2', '3']).default('3'),
   timeout: z.number().int().positive().default(30000),
   retryEnabled: z.boolean().default(true),
