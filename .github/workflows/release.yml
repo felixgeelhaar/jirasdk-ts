@@ -38,14 +38,46 @@ jobs:
       - name: Build packages
         run: pnpm build
 
-      - name: Create Release Pull Request or Publish
+      - name: Check for changesets
         id: changesets
+        run: |
+          if [ -n "$(ls -A .changeset/*.md 2>/dev/null | grep -v README.md)" ]; then
+            echo "has_changesets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changesets=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release Pull Request
+        if: steps.changesets.outputs.has_changesets == 'true'
         uses: changesets/action@v1
         with:
-          publish: pnpm changeset publish
           version: pnpm changeset version
           commit: 'chore: release packages'
           title: 'chore: release packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to npm with provenance
+        if: steps.changesets.outputs.has_changesets == 'false'
+        run: |
+          # Check if there are unpublished versions
+          CORE_LOCAL=$(node -p "require('./packages/core/package.json').version")
+          JIRA_LOCAL=$(node -p "require('./packages/jira/package.json').version")
+          CORE_NPM=$(npm view @felixgeelhaar/sdk-core version 2>/dev/null || echo "0.0.0")
+          JIRA_NPM=$(npm view @felixgeelhaar/jira-sdk version 2>/dev/null || echo "0.0.0")
+
+          if [ "$CORE_LOCAL" != "$CORE_NPM" ]; then
+            echo "Publishing @felixgeelhaar/sdk-core@$CORE_LOCAL..."
+            cd packages/core && npm publish --provenance --access public
+            cd ../..
+          fi
+
+          if [ "$JIRA_LOCAL" != "$JIRA_NPM" ]; then
+            echo "Publishing @felixgeelhaar/jira-sdk@$JIRA_LOCAL..."
+            cd packages/jira && npm publish --provenance --access public
+            cd ../..
+          fi
+
+          if [ "$CORE_LOCAL" = "$CORE_NPM" ] && [ "$JIRA_LOCAL" = "$JIRA_NPM" ]; then
+            echo "All packages already published"
+          fi
