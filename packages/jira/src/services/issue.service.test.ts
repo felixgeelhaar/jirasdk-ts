@@ -455,10 +455,7 @@ describe('IssueService', () => {
 
       await service.deleteAttachment('10000');
 
-      expect(mockHttp.delete).toHaveBeenCalledWith(
-        '/rest/api/3/attachment/10000',
-        undefined
-      );
+      expect(mockHttp.delete).toHaveBeenCalledWith('/rest/api/3/attachment/10000', undefined);
     });
   });
 
@@ -568,10 +565,7 @@ describe('IssueService', () => {
 
       await service.deleteIssueLink('10000');
 
-      expect(mockHttp.delete).toHaveBeenCalledWith(
-        '/rest/api/3/issueLink/10000',
-        undefined
-      );
+      expect(mockHttp.delete).toHaveBeenCalledWith('/rest/api/3/issueLink/10000', undefined);
     });
 
     it('should list issue link types', async () => {
@@ -598,11 +592,7 @@ describe('IssueService', () => {
 
       const result = await service.listIssueLinkTypes();
 
-      expect(mockHttp.get).toHaveBeenCalledWith(
-        '/rest/api/3/issueLinkType',
-        undefined,
-        undefined
-      );
+      expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/issueLinkType', undefined, undefined);
       expect(result.issueLinkTypes).toHaveLength(2);
     });
 
