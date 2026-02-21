@@ -373,4 +373,258 @@ describe('IssueService', () => {
       );
     });
   });
+
+  describe('attachments', () => {
+    it('should add an attachment', async () => {
+      const mockAttachments = [
+        {
+          self: 'https://example.atlassian.net/rest/api/3/attachment/10000',
+          id: '10000',
+          filename: 'test.txt',
+          created: '2024-01-15T10:00:00.000Z',
+          size: 100,
+          mimeType: 'text/plain',
+          content: 'https://example.atlassian.net/rest/api/3/attachment/content/10000',
+        },
+      ];
+
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse(mockAttachments));
+
+      const file = new Blob(['test content'], { type: 'text/plain' });
+      const result = await service.addAttachment('PROJECT-123', file, 'test.txt');
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        '/rest/api/3/issue/PROJECT-123/attachments',
+        expect.any(FormData),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'X-Atlassian-Token': 'no-check',
+          }),
+        })
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].filename).toBe('test.txt');
+    });
+
+    it('should get attachment metadata', async () => {
+      const mockMetadata = {
+        id: 10000,
+        self: 'https://example.atlassian.net/rest/api/3/attachment/10000',
+        filename: 'test.txt',
+        author: { accountId: 'user123', displayName: 'Test User' },
+        created: '2024-01-15T10:00:00.000Z',
+        size: 100,
+        mimeType: 'text/plain',
+        content: 'https://example.atlassian.net/rest/api/3/attachment/content/10000',
+      };
+
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockMetadata));
+
+      const result = await service.getAttachment('10000');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/attachment/10000',
+        undefined,
+        undefined
+      );
+      expect(result.filename).toBe('test.txt');
+    });
+
+    it('should download attachment content', async () => {
+      const mockBlob = new Blob(['file content'], { type: 'text/plain' });
+
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(mockBlob));
+
+      const result = await service.downloadAttachment('10000');
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'GET',
+          url: '/rest/api/3/attachment/content/10000',
+          headers: expect.objectContaining({
+            Accept: '*/*',
+          }),
+          metadata: { rawResponse: true },
+        })
+      );
+      expect(result).toBeInstanceOf(Blob);
+    });
+
+    it('should delete an attachment', async () => {
+      vi.mocked(mockHttp.delete).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.deleteAttachment('10000');
+
+      expect(mockHttp.delete).toHaveBeenCalledWith(
+        '/rest/api/3/attachment/10000',
+        undefined
+      );
+    });
+  });
+
+  describe('issue links', () => {
+    it('should get issue links', async () => {
+      const mockIssueWithLinks = {
+        ...createMockIssue('PROJECT-123'),
+        fields: {
+          ...createMockIssue('PROJECT-123').fields,
+          issuelinks: [
+            {
+              id: '10000',
+              self: 'https://example.atlassian.net/rest/api/3/issueLink/10000',
+              type: {
+                id: '10001',
+                name: 'Blocks',
+                inward: 'is blocked by',
+                outward: 'blocks',
+              },
+              outwardIssue: {
+                id: '10002',
+                key: 'PROJECT-456',
+                self: 'https://example.atlassian.net/rest/api/3/issue/10002',
+                fields: {
+                  summary: 'Blocked issue',
+                  status: {
+                    self: 'https://example.atlassian.net/rest/api/3/status/1',
+                    id: '1',
+                    name: 'Open',
+                  },
+                },
+              },
+            },
+          ],
+        },
+      };
+
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockIssueWithLinks));
+
+      const result = await service.getIssueLinks('PROJECT-123');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/issue/PROJECT-123',
+        expect.objectContaining({
+          fields: 'issuelinks',
+        }),
+        undefined
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].type.name).toBe('Blocks');
+    });
+
+    it('should create an issue link', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.createIssueLink({
+        type: { name: 'Blocks' },
+        inwardIssue: { key: 'PROJECT-123' },
+        outwardIssue: { key: 'PROJECT-456' },
+      });
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        '/rest/api/3/issueLink',
+        expect.objectContaining({
+          type: { name: 'Blocks' },
+          inwardIssue: { key: 'PROJECT-123' },
+          outwardIssue: { key: 'PROJECT-456' },
+        }),
+        undefined
+      );
+    });
+
+    it('should get an issue link by ID', async () => {
+      const mockLink = {
+        id: '10000',
+        self: 'https://example.atlassian.net/rest/api/3/issueLink/10000',
+        type: {
+          id: '10001',
+          name: 'Blocks',
+          inward: 'is blocked by',
+          outward: 'blocks',
+        },
+        inwardIssue: {
+          id: '10001',
+          key: 'PROJECT-123',
+        },
+        outwardIssue: {
+          id: '10002',
+          key: 'PROJECT-456',
+        },
+      };
+
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockLink));
+
+      const result = await service.getIssueLink('10000');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/issueLink/10000',
+        undefined,
+        undefined
+      );
+      expect(result.type.name).toBe('Blocks');
+    });
+
+    it('should delete an issue link', async () => {
+      vi.mocked(mockHttp.delete).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.deleteIssueLink('10000');
+
+      expect(mockHttp.delete).toHaveBeenCalledWith(
+        '/rest/api/3/issueLink/10000',
+        undefined
+      );
+    });
+
+    it('should list issue link types', async () => {
+      const mockTypes = {
+        issueLinkTypes: [
+          {
+            id: '10000',
+            name: 'Blocks',
+            inward: 'is blocked by',
+            outward: 'blocks',
+            self: 'https://example.atlassian.net/rest/api/3/issueLinkType/10000',
+          },
+          {
+            id: '10001',
+            name: 'Duplicate',
+            inward: 'is duplicated by',
+            outward: 'duplicates',
+            self: 'https://example.atlassian.net/rest/api/3/issueLinkType/10001',
+          },
+        ],
+      };
+
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockTypes));
+
+      const result = await service.listIssueLinkTypes();
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/issueLinkType',
+        undefined,
+        undefined
+      );
+      expect(result.issueLinkTypes).toHaveLength(2);
+    });
+
+    it('should get a specific issue link type', async () => {
+      const mockType = {
+        id: '10000',
+        name: 'Blocks',
+        inward: 'is blocked by',
+        outward: 'blocks',
+        self: 'https://example.atlassian.net/rest/api/3/issueLinkType/10000',
+      };
+
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockType));
+
+      const result = await service.getIssueLinkType('10000');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/issueLinkType/10000',
+        undefined,
+        undefined
+      );
+      expect(result.name).toBe('Blocks');
+    });
+  });
 });

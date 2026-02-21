@@ -14,6 +14,14 @@ import {
   WorklogSchema,
   WorklogsPageSchema,
   AddWorklogInputSchema,
+  // Attachment schemas
+  AttachmentMetadataSchema,
+  AddAttachmentResponseSchema,
+  // Issue Link schemas
+  IssueLinkSchema,
+  IssueLinkTypeSchema,
+  IssueLinkTypesResponseSchema,
+  CreateIssueLinkInputSchema,
   type Issue,
   type CreateIssueInput,
   type CreateIssueResponse,
@@ -30,6 +38,14 @@ import {
   type WorklogsPage,
   type AddWorklogInput,
   type UpdateWorklogInput,
+  // Attachment types
+  type Attachment,
+  type AttachmentMetadata,
+  // Issue Link types
+  type IssueLink,
+  type IssueLinkType,
+  type IssueLinkTypesResponse,
+  type CreateIssueLinkInput,
 } from '../schemas/index.js';
 
 /**
@@ -393,5 +409,159 @@ export class IssueService extends BaseService {
    */
   async removeVote(issueIdOrKey: string): Promise<void> {
     await this.deleteMethod(`/issue/${issueIdOrKey}/votes`);
+  }
+
+  // Attachments
+
+  /**
+   * Add an attachment to an issue
+   *
+   * @param issueIdOrKey - Issue ID or key
+   * @param file - File or Blob to upload
+   * @param filename - Optional filename (defaults to File.name or 'attachment')
+   * @returns Array of created attachments
+   *
+   * @example
+   * ```typescript
+   * const file = new File(['content'], 'document.txt', { type: 'text/plain' });
+   * const attachments = await client.issues.addAttachment('PROJECT-123', file);
+   * ```
+   */
+  async addAttachment(
+    issueIdOrKey: string,
+    file: File | Blob,
+    filename?: string
+  ): Promise<Attachment[]> {
+    const formData = new FormData();
+    const name = filename ?? (file instanceof File ? file.name : 'attachment');
+    formData.append('file', file, name);
+
+    const response = await this.http.post(
+      this.buildPath(`/issue/${issueIdOrKey}/attachments`),
+      formData,
+      {
+        headers: {
+          'X-Atlassian-Token': 'no-check',
+        },
+      }
+    );
+
+    return this.validateResponse(response, AddAttachmentResponseSchema);
+  }
+
+  /**
+   * Get attachment metadata by ID
+   *
+   * @param attachmentId - Attachment ID
+   * @returns Attachment metadata
+   */
+  async getAttachment(attachmentId: string): Promise<AttachmentMetadata> {
+    return this.getMethod(`/attachment/${attachmentId}`, AttachmentMetadataSchema);
+  }
+
+  /**
+   * Download attachment content
+   *
+   * @param attachmentId - Attachment ID
+   * @returns Blob containing the attachment content
+   */
+  async downloadAttachment(attachmentId: string): Promise<Blob> {
+    const response = await this.http.request({
+      method: 'GET',
+      url: this.buildPath(`/attachment/content/${attachmentId}`),
+      headers: {
+        Accept: '*/*',
+      },
+      metadata: { rawResponse: true },
+    });
+
+    return response.data as Blob;
+  }
+
+  /**
+   * Delete an attachment
+   *
+   * @param attachmentId - Attachment ID
+   */
+  async deleteAttachment(attachmentId: string): Promise<void> {
+    await this.deleteMethod(`/attachment/${attachmentId}`);
+  }
+
+  // Issue Links
+
+  /**
+   * Get all links for an issue
+   *
+   * @param issueIdOrKey - Issue ID or key
+   * @returns Array of issue links
+   */
+  async getIssueLinks(issueIdOrKey: string): Promise<IssueLink[]> {
+    const issue = await this.get(issueIdOrKey, {
+      fields: ['issuelinks'],
+    });
+    // issuelinks is in the fields with custom field passthrough
+    const links = (issue.fields as Record<string, unknown>)['issuelinks'];
+    if (!links || !Array.isArray(links)) {
+      return [];
+    }
+    // Validate each link
+    return links.map((link) => IssueLinkSchema.parse(link));
+  }
+
+  /**
+   * Create a link between two issues
+   *
+   * @param input - Issue link creation input
+   *
+   * @example
+   * ```typescript
+   * await client.issues.createIssueLink({
+   *   type: { name: 'Blocks' },
+   *   inwardIssue: { key: 'PROJECT-123' },
+   *   outwardIssue: { key: 'PROJECT-456' },
+   * });
+   * ```
+   */
+  async createIssueLink(input: CreateIssueLinkInput): Promise<void> {
+    const validatedInput = CreateIssueLinkInputSchema.parse(input);
+    await this.postMethodRaw('/issueLink', validatedInput);
+  }
+
+  /**
+   * Get an issue link by ID
+   *
+   * @param linkId - Issue link ID
+   * @returns Issue link
+   */
+  async getIssueLink(linkId: string): Promise<IssueLink> {
+    return this.getMethod(`/issueLink/${linkId}`, IssueLinkSchema);
+  }
+
+  /**
+   * Delete an issue link
+   *
+   * @param linkId - Issue link ID
+   */
+  async deleteIssueLink(linkId: string): Promise<void> {
+    await this.deleteMethod(`/issueLink/${linkId}`);
+  }
+
+  /**
+   * List all available issue link types
+   *
+   * @returns Issue link types response
+   */
+  async listIssueLinkTypes(): Promise<IssueLinkTypesResponse> {
+    return this.getMethod('/issueLinkType', IssueLinkTypesResponseSchema);
+  }
+
+  /**
+   * Get a specific issue link type
+   *
+   * @param linkTypeId - Issue link type ID
+   * @returns Issue link type
+   */
+  async getIssueLinkType(linkTypeId: string): Promise<IssueLinkType> {
+    return this.getMethod(`/issueLinkType/${linkTypeId}`, IssueLinkTypeSchema);
   }
 }

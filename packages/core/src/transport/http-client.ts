@@ -271,9 +271,13 @@ export class HttpClient {
     }
 
     // Prepare request body
-    let bodyContent: string | undefined;
+    let bodyContent: BodyInit | undefined;
     if (request.body !== undefined) {
-      if (typeof request.body === 'string') {
+      if (request.body instanceof FormData || request.body instanceof Blob) {
+        bodyContent = request.body;
+        // Remove Content-Type so browser/runtime sets it with boundary for FormData
+        headers.delete('Content-Type');
+      } else if (typeof request.body === 'string') {
         bodyContent = request.body;
       } else {
         bodyContent = JSON.stringify(request.body);
@@ -307,7 +311,12 @@ export class HttpClient {
       const contentType = response.headers.get('content-type');
       let data: unknown;
 
-      if (contentType?.includes('application/json')) {
+      // Check if raw blob response is requested
+      const wantBlob = request.metadata?.['rawResponse'] === true;
+
+      if (wantBlob) {
+        data = await response.blob();
+      } else if (contentType?.includes('application/json')) {
         const text = await response.text();
         data = text ? JSON.parse(text) : null;
       } else {
