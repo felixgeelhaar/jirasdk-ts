@@ -74,30 +74,6 @@
   "dependencies": {
     "zod": "^4.1.13"
   },
-  "peerDependencies": {
-    "@fortify-ts/bulkhead": ">=0.1.0",
-    "@fortify-ts/circuit-breaker": ">=0.1.0",
-    "@fortify-ts/rate-limit": ">=0.1.0",
-    "@fortify-ts/retry": ">=0.1.0",
-    "@fortify-ts/timeout": ">=0.1.0"
-  },
-  "peerDependenciesMeta": {
-    "@fortify-ts/circuit-breaker": {
-      "optional": true
-    },
-    "@fortify-ts/rate-limit": {
-      "optional": true
-    },
-    "@fortify-ts/bulkhead": {
-      "optional": true
-    },
-    "@fortify-ts/retry": {
-      "optional": true
-    },
-    "@fortify-ts/timeout": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "esbuild": "0.27.1",
     "eslint": "^9.39.1",
