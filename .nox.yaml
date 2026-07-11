@@ -1,0 +1,44 @@
+# nox configuration — the security/dependency gate that replaces dependabot.
+# Schema reference: https://github.com/nox-hq/nox
+#
+# Only GENERATED or PROSE artifacts are excluded here. First-party source
+# (packages/*/src, .github/, scripts) is scanned, and — importantly — so is
+# pnpm-lock.yaml: nox builds the dependency graph from the lockfile (excluding
+# it drops dependency scanning to zero, which would defeat the dependabot
+# replacement). Findings the excludes below do NOT silence are surfaced by the
+# report-only CI gate; nothing is hidden by blanket directory excludes.
+
+scan:
+  exclude:
+    # TypeScript/tsup build output (packages/*/dist). Generated, not committed
+    # (see .gitignore), but excluded so a local `nox scan` after a build does
+    # not re-trip secret/slopsquat heuristics on emitted/declaration files.
+    # Classification: Acceptable Pattern (generated). Last reviewed: 2026-07-11
+    - dist/
+    - "**/dist/"
+    - lib/
+    - build/
+    # nox's own baseline/cache and scan output — finding fingerprints are
+    # SHA-256 hex that re-trip the secret detector. Never scan the scanner.
+    # Classification: Acceptable Pattern. Last reviewed: 2026-07-11
+    - .nox/
+    - findings.json
+    - nox-results/
+    - "*.sarif"
+    # Markdown is prose. The entropy/secret and DATA (example-email) rules can
+    # fire on ordinary README/CHANGELOG lines (long hex/base64-looking strings
+    # in examples, sample addresses in docs) — false positives, no real
+    # secrets. Real secret patterns in code are still caught. Literal + globs
+    # are all required: "*.md" matches root files, "**/*.md" matches nested
+    # files (the "**/*.md" glob alone does NOT match files at the repo root in
+    # nox's matcher).
+    # Classification: False Positive (prose). Last reviewed: 2026-07-11
+    - README.md
+    - "*.md"
+    - "**/*.md"
+
+# NOTE: pnpm-lock.yaml is deliberately NOT excluded so dependency-vulnerability
+# scanning stays active. Its findings (SEC-16x "suspiciously similar package
+# name" heuristics) are all medium severity, so they do not trip the
+# critical/high CI gate; the noisy ones are accepted in .nox/baseline.json
+# rather than by excluding the whole lockfile (which would zero the dep graph).
