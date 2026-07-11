@@ -39,21 +39,6 @@ importers:
 
   packages/core:
     dependencies:
-      '@fortify-ts/bulkhead':
-        specifier: '>=0.1.0'
-        version: 0.1.4(zod@4.1.13)
-      '@fortify-ts/circuit-breaker':
-        specifier: '>=0.1.0'
-        version: 0.1.4(zod@4.1.13)
-      '@fortify-ts/rate-limit':
-        specifier: '>=0.1.0'
-        version: 0.1.4(zod@4.1.13)
-      '@fortify-ts/retry':
-        specifier: '>=0.1.0'
-        version: 0.1.4(zod@4.1.13)
-      '@fortify-ts/timeout':
-        specifier: '>=0.1.0'
-        version: 0.1.4(zod@4.1.13)
       zod:
         specifier: ^4.1.13
         version: 4.1.13
@@ -515,42 +500,6 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@fortify-ts/bulkhead@0.1.4':
-    resolution: {integrity: sha512-e698Vx/osKGtMVMAj10g0V3hsLlSWzRE6A3FwY5Iv7NexIP4gurMuBYKozRktJw78yX/0STt1qaYL4cWdqhOOQ==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      zod: ^4.0.0
-
-  '@fortify-ts/circuit-breaker@0.1.4':
-    resolution: {integrity: sha512-0mzaEF1dUK1x5+zpGcozMHZnl0LRnCKa41cQzsNmt+AxJV4fshOVYKFu5zHesj38/vs6NzHf4jKor+djYPOARg==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      zod: ^4.0.0
-
-  '@fortify-ts/core@0.1.4':
-    resolution: {integrity: sha512-2CZnrwSYggsZUk2OQG9+N/tm6U+DYNfAgDVpHkoa6aXRPZDNg+4h9WU0Vi4cOx8s9tUEIjEqJeRzteoMfdpvmA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      zod: ^4.0.0
-
-  '@fortify-ts/rate-limit@0.1.4':
-    resolution: {integrity: sha512-5BStoBShtkRSy5HURVJsZ5aRdf1AglycULTjd4V22MfUb95KbX0EZFpVRiQ2YoKsX+YxlZKOxOy2VDr4D29vWA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      zod: ^4.0.0
-
-  '@fortify-ts/retry@0.1.4':
-    resolution: {integrity: sha512-uKhU4d0U+IDryd+IPDDXcafHH3D3usqZs9UvNBBw2owSb/ruDH+hJz1LuhiL6zq73qrCc0DJTImHWAdWVGWNTA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      zod: ^4.0.0
-
-  '@fortify-ts/timeout@0.1.4':
-    resolution: {integrity: sha512-M3o6iJh5s/kzfTr5liQcrEKOT07eCK+wpnkjAEwA5zg0009sI5bCkxD+pHBA9ZcnX24b/dOE7XgbrOxJk/agUA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      zod: ^4.0.0
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2176,35 +2125,6 @@ snapshots:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
-
-  '@fortify-ts/bulkhead@0.1.4(zod@4.1.13)':
-    dependencies:
-      '@fortify-ts/core': 0.1.4(zod@4.1.13)
-      zod: 4.1.13
-
-  '@fortify-ts/circuit-breaker@0.1.4(zod@4.1.13)':
-    dependencies:
-      '@fortify-ts/core': 0.1.4(zod@4.1.13)
-      zod: 4.1.13
-
-  '@fortify-ts/core@0.1.4(zod@4.1.13)':
-    dependencies:
-      zod: 4.1.13
-
-  '@fortify-ts/rate-limit@0.1.4(zod@4.1.13)':
-    dependencies:
-      '@fortify-ts/core': 0.1.4(zod@4.1.13)
-      zod: 4.1.13
-
-  '@fortify-ts/retry@0.1.4(zod@4.1.13)':
-    dependencies:
-      '@fortify-ts/core': 0.1.4(zod@4.1.13)
-      zod: 4.1.13
-
-  '@fortify-ts/timeout@0.1.4(zod@4.1.13)':
-    dependencies:
-      '@fortify-ts/core': 0.1.4(zod@4.1.13)
-      zod: 4.1.13
 
   '@humanfs/core@0.19.1': {}
 
