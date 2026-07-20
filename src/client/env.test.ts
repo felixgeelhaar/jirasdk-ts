@@ -39,9 +39,9 @@ describe('createAuthFromEnv', () => {
 
   it('ignores a half-configured credential pair', () => {
     // Email without a token must not be mistaken for API token auth.
-    expect(
-      createAuthFromEnv({ [ENV_VARS.email]: 'me@acme.com', [ENV_VARS.pat]: 'pat' }).type
-    ).toBe('pat');
+    expect(createAuthFromEnv({ [ENV_VARS.email]: 'me@acme.com', [ENV_VARS.pat]: 'pat' }).type).toBe(
+      'pat'
+    );
   });
 
   it('treats whitespace-only values as absent', () => {
@@ -94,16 +94,19 @@ describe('loadConfigFromEnv', () => {
   });
 
   it.each(['abc', '-1', '1.5'])('rejects a malformed numeric value %p', (value) => {
-    expect(() => loadConfigFromEnv({ ...BASE, [ENV_VARS.pat]: 'p', [ENV_VARS.timeout]: value })).toThrow(
-      ConfigValidationError
-    );
+    expect(() =>
+      loadConfigFromEnv({ ...BASE, [ENV_VARS.pat]: 'p', [ENV_VARS.timeout]: value })
+    ).toThrow(ConfigValidationError);
   });
 });
 
 describe('withEnv', () => {
   it('fills in values absent from the explicit config', () => {
     const option = withEnv({ ...BASE, [ENV_VARS.pat]: 'p', [ENV_VARS.maxRetries]: '7' });
-    const result = option({ host: 'https://explicit.atlassian.net', auth: createAuthFromEnv({ [ENV_VARS.pat]: 'x' }) });
+    const result = option({
+      host: 'https://explicit.atlassian.net',
+      auth: createAuthFromEnv({ [ENV_VARS.pat]: 'x' }),
+    });
 
     expect(result.maxRetries).toBe(7);
   });

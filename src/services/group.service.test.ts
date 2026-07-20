@@ -58,7 +58,11 @@ describe('GroupService', () => {
   describe('find', () => {
     it('should search for groups', async () => {
       vi.mocked(mockHttp.get).mockResolvedValueOnce(
-        createMockResponse({ header: 'Showing 1 of 1', total: 1, groups: [createMockGroup('jira')] })
+        createMockResponse({
+          header: 'Showing 1 of 1',
+          total: 1,
+          groups: [createMockGroup('jira')],
+        })
       );
 
       const groups = await service.find({ query: 'jira', maxResults: 50 });
@@ -115,7 +119,11 @@ describe('GroupService', () => {
 
       await service.get({ groupId: 'id-g' });
 
-      expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/group', { groupId: 'id-g' }, undefined);
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/group',
+        { groupId: 'id-g' },
+        undefined
+      );
     });
 
     it('should require a group identifier', async () => {

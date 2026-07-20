@@ -289,7 +289,11 @@ describe('ProjectService', () => {
 
       const result = await service.getComponent('10000');
 
-      expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/component/10000', undefined, undefined);
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/component/10000',
+        undefined,
+        undefined
+      );
       expect(result.name).toBe('Frontend');
     });
 

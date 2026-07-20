@@ -122,9 +122,9 @@ describe('issue accessors', () => {
     });
 
     it('should parse standard ISO datetimes', () => {
-      expect(getUpdatedDate(makeIssue({ updated: '2024-02-01T00:00:00.000Z' }))?.getUTCMonth()).toBe(
-        1
-      );
+      expect(
+        getUpdatedDate(makeIssue({ updated: '2024-02-01T00:00:00.000Z' }))?.getUTCMonth()
+      ).toBe(1);
     });
 
     it('should return undefined for missing, null or unparseable values', () => {

@@ -4,7 +4,7 @@ import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig({
   define: {
-    __SDK_VERSION__: JSON.stringify(pkg.version),
+    SDK_VERSION_BUILD: JSON.stringify(pkg.version),
   },
   entry: {
     index: 'src/index.ts',

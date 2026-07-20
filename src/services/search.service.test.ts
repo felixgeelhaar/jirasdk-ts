@@ -356,9 +356,7 @@ describe('SearchService', () => {
             nextPageToken: 'token-2',
           })
         )
-        .mockResolvedValueOnce(
-          createMockResponse({ issues: [createMockIssue('PROJECT-3')] })
-        );
+        .mockResolvedValueOnce(createMockResponse({ issues: [createMockIssue('PROJECT-3')] }));
 
       const issues = [];
       for await (const issue of service.iterateJql('project = PROJECT', { fields: ['*all'] })) {
@@ -399,9 +397,7 @@ describe('SearchService', () => {
             nextPageToken: 'token-2',
           })
         )
-        .mockResolvedValueOnce(
-          createMockResponse({ issues: [createMockIssue('PROJECT-2')] })
-        );
+        .mockResolvedValueOnce(createMockResponse({ issues: [createMockIssue('PROJECT-2')] }));
 
       const issues = await service.allJql('project = PROJECT', {
         fields: ['*navigable'],

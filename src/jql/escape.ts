@@ -26,7 +26,10 @@ const ESCAPES: ReadonlyArray<readonly [RegExp, string]> = [
  * @returns The escaped value
  */
 export function escapeJqlValue(value: string): string {
-  return ESCAPES.reduce<string>((acc, [pattern, replacement]) => acc.replace(pattern, replacement), value);
+  return ESCAPES.reduce<string>(
+    (acc, [pattern, replacement]) => acc.replace(pattern, replacement),
+    value
+  );
 }
 
 /**

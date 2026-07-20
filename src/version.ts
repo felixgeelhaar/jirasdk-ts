@@ -9,7 +9,7 @@
  * The fallback only applies when running from source without the bundler —
  * tests, ts-node, and similar.
  */
-declare const __SDK_VERSION__: string | undefined;
+declare const SDK_VERSION_BUILD: string | undefined;
 
 export const SDK_VERSION: string =
-  typeof __SDK_VERSION__ === 'string' ? __SDK_VERSION__ : '0.0.0-dev';
+  typeof SDK_VERSION_BUILD === 'string' ? SDK_VERSION_BUILD : '0.0.0-dev';

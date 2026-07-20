@@ -23,7 +23,11 @@ export function timeout(ms: number, message?: string): Promise<never> {
 /**
  * Race a promise against a timeout
  */
-export function promiseWithTimeout<T>(promise: Promise<T>, ms: number, message?: string): Promise<T> {
+export function promiseWithTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  message?: string
+): Promise<T> {
   return Promise.race([promise, timeout(ms, message)]);
 }
 
@@ -290,7 +294,9 @@ export function parseDuration(value: string): number {
  */
 export function formatDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) {
-    throw new Error(`Invalid duration in seconds: ${String(seconds)}. Expected a non-negative number.`);
+    throw new Error(
+      `Invalid duration in seconds: ${String(seconds)}. Expected a non-negative number.`
+    );
   }
 
   let remaining = Math.floor(seconds);

@@ -95,9 +95,13 @@ export class MyselfService extends BaseService {
   async setPreference(key: string, value: string): Promise<void> {
     const params = this.buildParams({ key });
 
-    await this.http.put(this.buildPath(MY_PREFERENCES_PATH), { [key]: value }, {
-      params,
-    });
+    await this.http.put(
+      this.buildPath(MY_PREFERENCES_PATH),
+      { [key]: value },
+      {
+        params,
+      }
+    );
   }
 
   /**

@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  UserRefSchema,
-  AdfOrStringSchema,
-  OptionalJiraDateTimeSchema,
-} from '../common/index.js';
+import { UserRefSchema, AdfOrStringSchema, OptionalJiraDateTimeSchema } from '../common/index.js';
 
 /**
  * Comment visibility

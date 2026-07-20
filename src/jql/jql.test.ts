@@ -288,7 +288,9 @@ describe('parseIssueUrl', () => {
 
   it('extracts the key from a board selectedIssue link', () => {
     expect(
-      parseIssueUrl('https://example.atlassian.net/jira/software/projects/P/boards/1?selectedIssue=PROJ-5')
+      parseIssueUrl(
+        'https://example.atlassian.net/jira/software/projects/P/boards/1?selectedIssue=PROJ-5'
+      )
     ).toBe('PROJ-5');
   });
 

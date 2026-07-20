@@ -21,7 +21,9 @@ function offsetSource<T>(items: T[], pageSize: number, includeTotal = true) {
       pageInfo: {
         startAt,
         maxResults: pageSize,
-        ...(includeTotal ? { total: items.length } : { isLast: startAt + pageSize >= items.length }),
+        ...(includeTotal
+          ? { total: items.length }
+          : { isLast: startAt + pageSize >= items.length }),
       },
     });
   });
@@ -129,11 +131,12 @@ describe('paginate', () => {
   });
 
   it('guards against a non-advancing page', async () => {
-    const fetchPage = vi.fn((startAt: number): Promise<Page<number>> =>
-      Promise.resolve({
-        items: [1],
-        pageInfo: { startAt, maxResults: 0, total: 100 },
-      })
+    const fetchPage = vi.fn(
+      (startAt: number): Promise<Page<number>> =>
+        Promise.resolve({
+          items: [1],
+          pageInfo: { startAt, maxResults: 0, total: 100 },
+        })
     );
 
     await expect(collect(paginate(fetchPage))).resolves.toEqual([1]);
@@ -168,10 +171,7 @@ describe('paginateByToken', () => {
   });
 
   it('resumes from an initial token', async () => {
-    const fetchPage = tokenSource([
-      { items: ['a'], nextPageToken: '1' },
-      { items: ['b'] },
-    ]);
+    const fetchPage = tokenSource([{ items: ['a'], nextPageToken: '1' }, { items: ['b'] }]);
 
     await expect(collect(paginateByToken(fetchPage, { initialToken: '1' }))).resolves.toEqual([
       'b',
@@ -179,10 +179,7 @@ describe('paginateByToken', () => {
   });
 
   it('stops at maxItems', async () => {
-    const fetchPage = tokenSource([
-      { items: ['a', 'b'], nextPageToken: '1' },
-      { items: ['c'] },
-    ]);
+    const fetchPage = tokenSource([{ items: ['a', 'b'], nextPageToken: '1' }, { items: ['c'] }]);
 
     await expect(collect(paginateByToken(fetchPage, { maxItems: 1 }))).resolves.toEqual(['a']);
     expect(fetchPage).toHaveBeenCalledTimes(1);

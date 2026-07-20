@@ -352,9 +352,7 @@ export class UserService extends BaseService {
    * @param options - Permissions (required) plus optional filters
    * @returns The matching users
    */
-  async findUsersWithAllPermissions(
-    options: FindUsersWithAllPermissionsOptions
-  ): Promise<User[]> {
+  async findUsersWithAllPermissions(options: FindUsersWithAllPermissionsOptions): Promise<User[]> {
     const params = this.buildParams({
       permissions: this.arrayToCommaSeparated(options.permissions),
       issueKey: options.issueKey,
