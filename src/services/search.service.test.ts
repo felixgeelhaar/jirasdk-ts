@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated -- the legacy search methods stay supported, so they stay tested */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SearchService } from './search.service.js';
 import type { HttpClient, HttpResponse } from '../transport/index.js';

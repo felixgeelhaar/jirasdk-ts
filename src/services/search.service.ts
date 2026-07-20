@@ -210,6 +210,7 @@ export class SearchService extends BaseService {
    * @deprecated Use {@link SearchService.searchJql} instead.
    */
   async jql(query: string, options?: Omit<SearchOptions, 'jql'>): Promise<SearchResult> {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- deprecated wrapper over a deprecated endpoint
     return this.search({ jql: query, ...options });
   }
 
@@ -234,6 +235,7 @@ export class SearchService extends BaseService {
     let hasMore = true;
 
     while (hasMore) {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- deprecated iterator over a deprecated endpoint
       const result = await this.search({
         jql,
         ...options,
@@ -258,6 +260,7 @@ export class SearchService extends BaseService {
    */
   async all(jql: string, options?: Omit<SearchOptions, 'jql' | 'startAt'>): Promise<Issue[]> {
     const issues: Issue[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- deprecated helper over a deprecated iterator
     for await (const issue of this.iterate(jql, options)) {
       issues.push(issue);
     }
@@ -273,6 +276,7 @@ export class SearchService extends BaseService {
    * retires it.
    */
   async count(jql: string): Promise<number> {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- the legacy endpoint is the only one returning a total
     const result = await this.search({
       jql,
       maxResults: 0,

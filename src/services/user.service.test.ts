@@ -262,4 +262,232 @@ describe('UserService', () => {
       );
     });
   });
+
+  describe('bulkGet', () => {
+    it('should request multiple account IDs and unwrap the page', async () => {
+      const mockPage = {
+        maxResults: 50,
+        startAt: 0,
+        total: 2,
+        isLast: true,
+        values: [createMockUser('user1', 'User One'), createMockUser('user2', 'User Two')],
+      };
+
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockPage));
+
+      const users = await service.bulkGet({ accountIds: ['user1', 'user2'], maxResults: 50 });
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/user/bulk',
+        expect.objectContaining({
+          accountId: ['user1', 'user2'],
+          maxResults: 50,
+        }),
+        undefined
+      );
+      expect(users).toHaveLength(2);
+    });
+
+    it('should reject a response that is not a user page', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ values: 'nope' }));
+
+      await expect(service.bulkGet({ accountIds: ['user1'] })).rejects.toThrow();
+    });
+  });
+
+  describe('default columns', () => {
+    it('should get default columns as an ordered list of IDs', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse([
+          { label: 'Key', value: 'issuekey' },
+          { label: 'Summary', value: 'summary' },
+        ])
+      );
+
+      const columns = await service.getDefaultColumns('user123');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/user/columns',
+        { accountId: 'user123' },
+        undefined
+      );
+      expect(columns).toEqual(['issuekey', 'summary']);
+    });
+
+    it('should set default columns', async () => {
+      vi.mocked(mockHttp.put).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.setDefaultColumns(['issuekey', 'summary']);
+
+      expect(mockHttp.put).toHaveBeenCalledWith(
+        '/rest/api/3/user/columns',
+        ['issuekey', 'summary'],
+        undefined
+      );
+    });
+
+    it('should reset default columns', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.resetDefaultColumns('user123');
+
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: '/rest/api/3/user/columns',
+        params: { accountId: 'user123' },
+      });
+    });
+  });
+
+  describe('user properties', () => {
+    it('should get a user property', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse({ key: 'theme', value: { mode: 'dark' } })
+      );
+
+      const property = await service.getUserProperty('user123', 'theme');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/user/properties/theme',
+        { accountId: 'user123' },
+        undefined
+      );
+      expect(property.value).toEqual({ mode: 'dark' });
+    });
+
+    it('should set a user property', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.setUserProperty('user123', 'theme', { mode: 'dark' });
+
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'PUT',
+        url: '/rest/api/3/user/properties/theme',
+        body: { mode: 'dark' },
+        params: { accountId: 'user123' },
+      });
+    });
+
+    it('should delete a user property', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.deleteUserProperty('user123', 'theme');
+
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: '/rest/api/3/user/properties/theme',
+        params: { accountId: 'user123' },
+      });
+    });
+
+    it('should reject a malformed property response', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ value: 1 }));
+
+      await expect(service.getUserProperty('user123', 'theme')).rejects.toThrow();
+    });
+  });
+
+  describe('getUserGroups', () => {
+    it('should get the groups a user belongs to', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse([
+          { name: 'jira-users', self: 'https://example.atlassian.net/rest/api/3/group?groupId=1' },
+        ])
+      );
+
+      const groups = await service.getUserGroups('user123');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/user/groups',
+        { accountId: 'user123' },
+        undefined
+      );
+      expect(groups[0]?.name).toBe('jira-users');
+    });
+  });
+
+  describe('findUsersWithAllPermissions', () => {
+    it('should join permissions into a comma-separated param', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse([createMockUser('user1', 'User One')])
+      );
+
+      const users = await service.findUsersWithAllPermissions({
+        permissions: ['EDIT_ISSUES', 'DELETE_ISSUES'],
+        projectKey: 'PROJECT',
+        query: 'john',
+        maxResults: 10,
+      });
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/user/permission/search',
+        expect.objectContaining({
+          permissions: 'EDIT_ISSUES,DELETE_ISSUES',
+          projectKey: 'PROJECT',
+          query: 'john',
+          maxResults: 10,
+        }),
+        undefined
+      );
+      expect(users).toHaveLength(1);
+    });
+  });
+
+  describe('findUsersWithBrowsePermission', () => {
+    it('should search without any filters', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse([]));
+
+      const users = await service.findUsersWithBrowsePermission();
+
+      expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/user/viewissue/search', {}, undefined);
+      expect(users).toHaveLength(0);
+    });
+
+    it('should pass filters through', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse([createMockUser('user1', 'User One')])
+      );
+
+      await service.findUsersWithBrowsePermission({ issueKey: 'PROJECT-1', startAt: 5 });
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/user/viewissue/search',
+        expect.objectContaining({ issueKey: 'PROJECT-1', startAt: 5 }),
+        undefined
+      );
+    });
+  });
+
+  describe('findByName', () => {
+    it('should default to 50 results', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse([createMockUser('user1', 'John Doe')])
+      );
+
+      const users = await service.findByName('john');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/user/search',
+        expect.objectContaining({ query: 'john', maxResults: 50 }),
+        undefined
+      );
+      expect(users).toHaveLength(1);
+    });
+
+    it('should honour an explicit maxResults and ignore invalid values', async () => {
+      vi.mocked(mockHttp.get)
+        .mockResolvedValueOnce(createMockResponse([]))
+        .mockResolvedValueOnce(createMockResponse([]));
+
+      await service.findByName('john', 10);
+      await service.findByName('john', 0);
+
+      expect(vi.mocked(mockHttp.get).mock.calls[0]?.[1]).toEqual(
+        expect.objectContaining({ maxResults: 10 })
+      );
+      expect(vi.mocked(mockHttp.get).mock.calls[1]?.[1]).toEqual(
+        expect.objectContaining({ maxResults: 50 })
+      );
+    });
+  });
 });
