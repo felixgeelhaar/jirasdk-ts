@@ -106,7 +106,9 @@ Security updates will be:
 
 This security policy applies to:
 - `@felixgeelhaar/jira-sdk`
-- `@felixgeelhaar/sdk-core`
+
+`@felixgeelhaar/sdk-core` was merged into `@felixgeelhaar/jira-sdk` in v1.0.0 and is
+no longer maintained separately.
 
 ## Out of Scope
 

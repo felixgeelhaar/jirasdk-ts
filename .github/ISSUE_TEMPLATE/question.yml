@@ -17,7 +17,6 @@ body:
       description: Which package is your question about?
       options:
         - "@felixgeelhaar/jira-sdk"
-        - "@felixgeelhaar/sdk-core"
         - "General/Setup"
         - "Not sure"
     validations:

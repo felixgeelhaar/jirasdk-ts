@@ -15,7 +15,6 @@ body:
       description: Which package is affected?
       options:
         - "@felixgeelhaar/jira-sdk"
-        - "@felixgeelhaar/sdk-core"
         - "Multiple packages"
     validations:
       required: true

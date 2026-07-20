@@ -15,7 +15,6 @@ body:
       description: Which package should this feature be added to?
       options:
         - "@felixgeelhaar/jira-sdk"
-        - "@felixgeelhaar/sdk-core"
         - "New package"
         - "Not sure"
     validations:

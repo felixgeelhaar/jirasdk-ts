@@ -1,5 +1,10 @@
 # NPM Trusted Publishing Setup Guide
 
+> **Note:** As of v1.0.0 this repository publishes a single package,
+> `@felixgeelhaar/jira-sdk`. `@felixgeelhaar/sdk-core` was merged into it and is
+> no longer published. References to it below are retained for historical
+> context on the existing npm trusted-publishing configuration.
+
 This guide explains how to set up NPM trusted publishing (provenance) for the Jira SDK TypeScript packages.
 
 ## What is NPM Trusted Publishing?
