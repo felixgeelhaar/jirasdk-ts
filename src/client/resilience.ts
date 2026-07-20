@@ -142,8 +142,11 @@ export function createResilienceMiddleware(
     middlewares.push(createRetryMiddleware(config.retry));
   }
 
-  // Compose all middleware into one
-  const middleware = middlewares.length === 1 ? middlewares[0]! : composeMiddleware(...middlewares);
+  // Compose all middleware into one. A single entry is used directly rather
+  // than wrapped, so the common case adds no indirection.
+  const [only] = middlewares;
+  const middleware =
+    middlewares.length === 1 && only !== undefined ? only : composeMiddleware(...middlewares);
 
   return {
     middleware,

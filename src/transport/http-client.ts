@@ -22,6 +22,7 @@ import {
   ServerError,
 } from '../errors/api.error.js';
 import { buildQueryString, joinPath } from '../utils/index.js';
+import { readEnvVar, warn } from '../utils/runtime.js';
 
 /**
  * Default request timeout (30 seconds)
@@ -35,7 +36,7 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 function validateSecureUrl(url: string, allowInsecure: boolean | undefined): void {
   const isHttps = url.startsWith('https://');
   const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
-  const isProduction = typeof process !== 'undefined' && process.env?.['NODE_ENV'] === 'production';
+  const isProduction = readEnvVar('NODE_ENV') === 'production';
 
   if (!isHttps && !isLocalhost && !allowInsecure) {
     if (isProduction) {
@@ -45,12 +46,10 @@ function validateSecureUrl(url: string, allowInsecure: boolean | undefined): voi
       );
     }
     // Warn in non-production environments
-    if (typeof console !== 'undefined' && console.warn) {
-      console.warn(
-        `[SDK Warning] Using insecure HTTP connection to "${url}". ` +
-          `HTTPS is strongly recommended for production use.`
-      );
-    }
+    warn(
+      `[SDK Warning] Using insecure HTTP connection to "${url}". ` +
+        `HTTPS is strongly recommended for production use.`
+    );
   }
 }
 

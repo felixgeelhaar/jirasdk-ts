@@ -1,5 +1,6 @@
 import { ApiTokenAuth, BasicAuth, OAuth2Auth, PatAuth, type AuthProvider } from '../auth/index.js';
 import { ConfigValidationError } from '../errors/index.js';
+import { processEnv } from '../utils/runtime.js';
 import { JiraClient } from './client.js';
 import type { JiraClientConfig, JiraClientOption } from './types.js';
 
@@ -30,14 +31,9 @@ export const ENV_VARS = {
 export type EnvSource = Record<string, string | undefined>;
 
 function readEnv(source?: EnvSource): EnvSource {
-  if (source !== undefined) {
-    return source;
-  }
-  // `process` is absent in browsers and some edge runtimes.
-  if (typeof process === 'undefined' || process.env === undefined) {
-    return {};
-  }
-  return process.env;
+  // `process` is absent in browsers and some edge runtimes; processEnv()
+  // handles that and returns an empty object there.
+  return source ?? processEnv();
 }
 
 function trimmed(value: string | undefined): string | undefined {

@@ -17,10 +17,6 @@ export class AuthError extends JiraSdkError {
  */
 export class TokenRefreshError extends AuthError {
   override readonly code: string = 'TOKEN_REFRESH_ERROR';
-
-  constructor(message: string, context?: Record<string, unknown>) {
-    super(message, context);
-  }
 }
 
 /**

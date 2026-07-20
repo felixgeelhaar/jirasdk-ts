@@ -1,3 +1,4 @@
+import { captureStackTrace } from '../utils/runtime.js';
 /**
  * Base error class for all SDK errors.
  * Provides consistent error structure with error codes and cause chaining.
@@ -37,10 +38,8 @@ export abstract class JiraSdkError extends Error {
       this.context = options.context;
     }
 
-    // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
+    // Maintains proper stack trace for where our error was thrown (V8 only)
+    captureStackTrace(this, this.constructor);
   }
 
   /**

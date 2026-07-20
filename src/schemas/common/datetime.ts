@@ -47,5 +47,8 @@ export function toJiraDateTime(date: Date): string {
  * Convert a Date to Jira date string (YYYY-MM-DD)
  */
 export function toJiraDate(date: Date): string {
-  return date.toISOString().split('T')[0]!;
+  // An ISO-8601 string is always "YYYY-MM-DDTHH:mm:ss.sssZ", so the date part
+  // is the first ten characters. Slicing avoids indexing into a split result
+  // that the type system cannot know is non-empty.
+  return date.toISOString().slice(0, 10);
 }

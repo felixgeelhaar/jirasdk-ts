@@ -2,6 +2,7 @@ import type { Middleware, MiddlewareContext, MiddlewareNext, HttpResponse } from
 import { RateLimitError, ServerError, ApiError } from '../errors/api.error.js';
 import { NetworkError } from '../errors/network.error.js';
 import { sleep, exponentialBackoff } from '../utils/index.js';
+import { randomId } from '../utils/runtime.js';
 
 /**
  * Logging middleware configuration
@@ -261,14 +262,20 @@ export function createRateLimitMiddleware(config: RateLimitMiddlewareConfig): Mi
     const now = Date.now();
 
     // Remove old timestamps outside the window
-    while (timestamps.length > 0 && timestamps[0]! < now - windowMs) {
+    const cutoff = now - windowMs;
+    for (
+      let oldest = timestamps[0];
+      oldest !== undefined && oldest < cutoff;
+      oldest = timestamps[0]
+    ) {
       timestamps.shift();
     }
 
     // Check if we're at the limit
     if (timestamps.length >= maxRequests) {
       if (waitForSlot) {
-        const oldestTimestamp = timestamps[0]!;
+        // The length check above guarantees at least one entry.
+        const oldestTimestamp = timestamps[0] ?? now;
         const waitTime = oldestTimestamp + windowMs - now;
 
         if (waitTime > 0) {
@@ -280,7 +287,7 @@ export function createRateLimitMiddleware(config: RateLimitMiddlewareConfig): Mi
         timestamps.shift();
       } else {
         throw new RateLimitError('Client-side rate limit exceeded', undefined, {
-          retryAfter: timestamps[0]! + windowMs - now,
+          retryAfter: (timestamps[0] ?? now) + windowMs - now,
         });
       }
     }
@@ -309,13 +316,8 @@ export function createRequestIdMiddleware(headerName = 'X-Request-ID'): Middlewa
  * Generate a unique request ID
  */
 function generateRequestId(): string {
-  // Use crypto.randomUUID if available
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-
-  // Fallback for older environments
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
+  // randomId() prefers crypto.randomUUID and falls back where it is absent.
+  return randomId();
 }
 
 /**
