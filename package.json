@@ -1,8 +1,7 @@
 {
-  "name": "jirasdk-ts",
-  "version": "0.0.0",
-  "private": true,
-  "description": "TypeScript SDKs for Atlassian Cloud APIs",
+  "name": "@felixgeelhaar/jira-sdk",
+  "version": "0.3.0",
+  "description": "TypeScript SDK for the Atlassian Jira Cloud REST API - type-safe, Zod-validated, with built-in resilience",
   "keywords": [
     "jira",
     "atlassian",
@@ -14,7 +13,8 @@
     "api-client",
     "resilience",
     "circuit-breaker",
-    "oauth2"
+    "oauth2",
+    "zod"
   ],
   "homepage": "https://github.com/felixgeelhaar/jirasdk-ts#readme",
   "bugs": {
@@ -27,35 +27,118 @@
   "author": "Felix Geelhaar",
   "license": "MIT",
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./auth": {
+      "import": {
+        "types": "./dist/auth/index.d.ts",
+        "default": "./dist/auth/index.js"
+      },
+      "require": {
+        "types": "./dist/auth/index.d.cts",
+        "default": "./dist/auth/index.cjs"
+      }
+    },
+    "./transport": {
+      "import": {
+        "types": "./dist/transport/index.d.ts",
+        "default": "./dist/transport/index.js"
+      },
+      "require": {
+        "types": "./dist/transport/index.d.cts",
+        "default": "./dist/transport/index.cjs"
+      }
+    },
+    "./errors": {
+      "import": {
+        "types": "./dist/errors/index.d.ts",
+        "default": "./dist/errors/index.js"
+      },
+      "require": {
+        "types": "./dist/errors/index.d.cts",
+        "default": "./dist/errors/index.cjs"
+      }
+    },
+    "./schemas": {
+      "import": {
+        "types": "./dist/schemas/index.d.ts",
+        "default": "./dist/schemas/index.js"
+      },
+      "require": {
+        "types": "./dist/schemas/index.d.cts",
+        "default": "./dist/schemas/index.cjs"
+      }
+    },
+    "./services": {
+      "import": {
+        "types": "./dist/services/index.d.ts",
+        "default": "./dist/services/index.js"
+      },
+      "require": {
+        "types": "./dist/services/index.d.cts",
+        "default": "./dist/services/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=20.0.0"
   },
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
-    "test:watch": "pnpm -r test:watch",
-    "lint": "eslint packages/*/src",
-    "lint:fix": "eslint packages/*/src --fix",
-    "typecheck": "pnpm -r typecheck",
-    "clean": "pnpm -r clean",
-    "format": "prettier --write \"packages/*/src/**/*.ts\"",
-    "format:check": "prettier --check \"packages/*/src/**/*.ts\""
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "dev": "tsup --watch",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@changesets/cli": "2.29.8",
     "@eslint/js": "9.39.1",
     "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "^4.1.0",
+    "esbuild": "0.27.1",
     "eslint": "^9.39.1",
     "globals": "16.5.0",
     "prettier": "^3.7.4",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.1"
+    "typescript-eslint": "^8.48.1",
+    "vitest": "^4.1.0"
   },
   "pnpm": {
     "overrides": {
       "esbuild": ">=0.25.0",
       "minimatch": ">=9.0.0"
     }
-  }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "sideEffects": false
 }
