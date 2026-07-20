@@ -465,6 +465,104 @@ describe('IssueService', () => {
     });
   });
 
+  describe('worklogs', () => {
+    const mockWorklog = {
+      id: '10100',
+      self: 'https://example.atlassian.net/rest/api/3/issue/10001/worklog/10100',
+      started: '2024-01-15T09:00:00.000+0000',
+      timeSpent: '1h 30m',
+      timeSpentSeconds: 5400,
+      created: '2024-01-15T10:00:00.000Z',
+      updated: '2024-01-15T10:00:00.000Z',
+    };
+
+    it('should get worklogs for an issue', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse({ startAt: 0, maxResults: 50, total: 1, worklogs: [mockWorklog] })
+      );
+
+      const result = await service.getWorklogs('PROJECT-123', { startAt: 0, maxResults: 50 });
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/issue/PROJECT-123/worklog',
+        { startAt: 0, maxResults: 50 },
+        undefined
+      );
+      expect(result.worklogs).toHaveLength(1);
+    });
+
+    it('should get a single worklog', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockWorklog));
+
+      const result = await service.getWorklog('PROJECT-123', '10100');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/issue/PROJECT-123/worklog/10100',
+        {},
+        undefined
+      );
+      expect(result.timeSpentSeconds).toBe(5400);
+    });
+
+    it('should add a worklog with query params', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(mockWorklog));
+
+      const result = await service.addWorklog(
+        'PROJECT-123',
+        { started: '2024-01-15T09:00:00.000+0000', timeSpent: '1h 30m' },
+        { adjustEstimate: 'leave', notifyUsers: false }
+      );
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'POST',
+          url: '/rest/api/3/issue/PROJECT-123/worklog',
+          params: { notifyUsers: false, adjustEstimate: 'leave' },
+        })
+      );
+      expect(result.id).toBe('10100');
+    });
+
+    it('should update a worklog', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(mockWorklog));
+
+      await service.updateWorklog('PROJECT-123', '10100', {
+        started: '2024-01-15T09:00:00.000+0000',
+        timeSpent: '2h',
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'PUT',
+          url: '/rest/api/3/issue/PROJECT-123/worklog/10100',
+          body: expect.objectContaining({ timeSpent: '2h' }),
+        })
+      );
+    });
+
+    it('should delete a worklog', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.deleteWorklog('PROJECT-123', '10100', { adjustEstimate: 'auto' });
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'DELETE',
+          url: '/rest/api/3/issue/PROJECT-123/worklog/10100',
+          params: { adjustEstimate: 'auto' },
+        })
+      );
+    });
+
+    it('should reject an invalid worklog response', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse({ id: '10100', timeSpent: '1h' })
+      );
+
+      await expect(service.getWorklog('PROJECT-123', '10100')).rejects.toThrow();
+    });
+  });
+
   describe('attachments', () => {
     it('should add an attachment', async () => {
       const mockAttachments = [

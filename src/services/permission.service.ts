@@ -224,6 +224,6 @@ export class PermissionService extends BaseService {
 
     await this.http.delete(this.buildPath(`/project/${projectIdOrKey}/role/${String(roleId)}`), {
       params,
-    } as never);
+    });
   }
 }

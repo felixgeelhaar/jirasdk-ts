@@ -176,7 +176,7 @@ export class WebhookService extends BaseService {
       webhookId: webhookIds.map((id) => String(id)),
     });
 
-    await this.http.delete(this.buildPath('/webhook'), { params } as never);
+    await this.http.delete(this.buildPath('/webhook'), { params });
   }
 
   /**

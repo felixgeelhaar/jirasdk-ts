@@ -183,7 +183,7 @@ export class NotificationService extends BaseService {
     const response = await this.http.post(
       this.buildPath(`/notificationscheme/${String(schemeId)}/notification`),
       body,
-      { params: { eventTypeId: eventId } } as never
+      { params: { eventTypeId: eventId } }
     );
 
     return this.validateResponse(response, NotificationSchema);

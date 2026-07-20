@@ -86,7 +86,7 @@ export class ResolutionService extends BaseService {
 
     await this.http.delete(this.buildPath(`/resolution/${resolutionId}`), {
       params,
-    } as never);
+    });
   }
 
   /**

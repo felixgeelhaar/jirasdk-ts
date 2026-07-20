@@ -86,7 +86,7 @@ export class PriorityService extends BaseService {
 
     await this.http.delete(this.buildPath(`/priority/${priorityId}`), {
       params,
-    } as never);
+    });
   }
 
   /**

@@ -106,7 +106,7 @@ export class IssueTypeService extends BaseService {
 
     await this.http.delete(this.buildPath(`/issuetype/${issueTypeId}`), {
       params,
-    } as never);
+    });
   }
 
   /**

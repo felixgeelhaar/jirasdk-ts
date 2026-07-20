@@ -233,8 +233,8 @@ describe('JqlQueryBuilder', () => {
     });
 
     it('renders through toString', () => {
-      expect(`${jql().project('P').build()}`).toBe('project = "P"');
       expect(String(jql().project('P'))).toBe('project = "P"');
+      expect(jql().project('P').toString()).toBe(jql().project('P').build());
     });
 
     it('exposes a create() factory', () => {

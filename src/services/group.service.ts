@@ -112,7 +112,7 @@ export class GroupService extends BaseService {
       groupId: options.groupId,
     });
 
-    await this.http.delete(this.buildPath('/group'), { params } as never);
+    await this.http.delete(this.buildPath('/group'), { params });
   }
 
   /**
@@ -200,7 +200,7 @@ export class GroupService extends BaseService {
     const response = await this.http.post(
       this.buildPath('/group/user'),
       { accountId: options.accountId },
-      { params } as never
+      { params }
     );
 
     return this.validateResponse(response, GroupSchema);
@@ -231,7 +231,7 @@ export class GroupService extends BaseService {
       username: options.username,
     });
 
-    await this.http.delete(this.buildPath('/group/user'), { params } as never);
+    await this.http.delete(this.buildPath('/group/user'), { params });
   }
 
   /**

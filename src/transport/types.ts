@@ -1,6 +1,11 @@
 import type { AuthProvider } from '../auth/types.js';
 import type { Logger } from '../logging/types.js';
 
+// Re-exported so the transport module's public surface is self-contained:
+// `Logger` appears in MiddlewareContext and HttpClientConfig, so consumers of
+// the `./transport` subpath need it without reaching into `./logging`.
+export type { Logger };
+
 /**
  * HTTP request method
  */

@@ -97,7 +97,7 @@ export class MyselfService extends BaseService {
 
     await this.http.put(this.buildPath(MY_PREFERENCES_PATH), { [key]: value }, {
       params,
-    } as never);
+    });
   }
 
   /**
@@ -113,6 +113,6 @@ export class MyselfService extends BaseService {
 
     await this.http.delete(this.buildPath(MY_PREFERENCES_PATH), {
       params,
-    } as never);
+    });
   }
 }
