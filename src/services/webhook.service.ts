@@ -28,12 +28,13 @@ import {
  * // List webhooks
  * const webhooks = await client.webhooks.list({ maxResults: 50 });
  *
- * // Register webhooks
- * const results = await client.webhooks.create([
+ * // Register webhooks. The callback URL is a single top-level argument —
+ * // Jira allows only one registered URL per app, and it must share the
+ * // Connect app's base URL.
+ * const results = await client.webhooks.create('https://example.com/webhooks/jira', [
  *   {
- *     name: 'Issue Created Webhook',
- *     url: 'https://example.com/webhooks/jira',
  *     events: ['jira:issue_created'],
+ *     jqlFilter: 'project = PROJ',
  *   },
  * ]);
  *
@@ -129,16 +130,25 @@ export class WebhookService extends BaseService {
    *
    * `POST /rest/api/3/webhook`
    *
+   * Deviates from the Go SDK, which sends `{"webhooks": [{name, url, ...}]}`
+   * with a `url` (and `name`) per webhook. The documented request body is
+   * `WebhookRegistrationDetails`: a single top-level `url` — only one callback
+   * URL per app may be registered, and it must share the Connect app's base
+   * URL — plus a `webhooks` array of `WebhookDetails` objects that have no
+   * `name`/`url` and require `jqlFilter`.
+   *
+   * @param url - The callback URL that receives every registered webhook
    * @param inputs - The webhooks to register (at least one)
    * @returns One registration result per submitted webhook
    */
-  async create(inputs: CreateWebhookInput[]): Promise<WebhookRegistrationResult[]> {
+  async create(url: string, inputs: CreateWebhookInput[]): Promise<WebhookRegistrationResult[]> {
     if (inputs.length === 0) {
       throw new Error('at least one webhook is required');
     }
 
     const webhooks = inputs.map((input) => CreateWebhookInputSchema.parse(input));
     const response = await this.postMethod('/webhook', WebhookRegistrationResponseSchema, {
+      url,
       webhooks,
     });
 
@@ -164,6 +174,11 @@ export class WebhookService extends BaseService {
    *
    * `DELETE /rest/api/3/webhook`
    *
+   * Deviates from the Go SDK, which sends the IDs as repeated `webhookId`
+   * query parameters. The endpoint documents a required JSON request body
+   * (`ContainerForWebhookIDs`, `{"webhookIds": [...]}`) and declares no query
+   * parameters at all.
+   *
    * @param webhookIds - The webhook IDs to delete (at least one)
    * @returns Nothing
    */
@@ -172,11 +187,11 @@ export class WebhookService extends BaseService {
       throw new Error('at least one webhook ID is required');
     }
 
-    const params = this.buildParams({
-      webhookId: webhookIds.map((id) => String(id)),
+    await this.http.request({
+      method: 'DELETE',
+      url: this.buildPath('/webhook'),
+      body: { webhookIds },
     });
-
-    await this.http.delete(this.buildPath('/webhook'), { params });
   }
 
   /**

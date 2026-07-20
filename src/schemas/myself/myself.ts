@@ -60,9 +60,22 @@ export const SetUserPreferencesInputSchema = z.object({
 
 export type SetUserPreferencesInput = z.infer<typeof SetUserPreferencesInputSchema>;
 
-/**
- * Raw key/value map returned when reading a single preference
+/*
+ * Note: a `UserPreferenceMapSchema` (`Record<string, string>`) used to live
+ * here, mirroring the Go SDK's assumption that
+ * `GET /rest/api/3/mypreferences?key=` returns a map keyed by preference name.
+ * It does not — it returns the value itself — so the map never matched and the
+ * schema has been removed in favour of `PreferenceValueSchema` below.
  */
-export const UserPreferenceMapSchema = z.record(z.string(), z.string());
 
-export type UserPreferenceMap = z.infer<typeof UserPreferenceMapSchema>;
+/**
+ * The value returned by `GET /rest/api/3/mypreferences?key={key}`
+ *
+ * Documented as a plain string. Booleans and numbers are coerced so that
+ * scalar preferences stored as non-strings still validate.
+ */
+export const PreferenceValueSchema = z
+  .union([z.string(), z.boolean(), z.number()])
+  .transform((value) => String(value));
+
+export type PreferenceValue = z.infer<typeof PreferenceValueSchema>;

@@ -32,7 +32,16 @@ export function promiseWithTimeout<T>(
 }
 
 /**
- * Build URL query string from parameters object
+ * Build a URL query string from a parameters object.
+ *
+ * Returns the encoded pairs **without** a leading `?` (for example
+ * `a=1&b=2`), so callers stay in control of the separator. Returns an empty
+ * string when there is nothing to encode.
+ *
+ * Note: this previously returned a leading `?`, while the only caller also
+ * prepended its own separator. The result was a doubled `??`, which made the
+ * first parameter's name `?jql` rather than `jql` — so the first query
+ * parameter of every request was silently dropped by Jira.
  */
 export function buildQueryString(params: Record<string, unknown>): string {
   const filtered = Object.entries(params).filter(
@@ -55,7 +64,7 @@ export function buildQueryString(params: Record<string, unknown>): string {
     }
   }
 
-  return `?${searchParams.toString()}`;
+  return searchParams.toString();
 }
 
 /**

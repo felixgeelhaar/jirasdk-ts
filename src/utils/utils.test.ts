@@ -103,7 +103,7 @@ describe('Utils', () => {
   describe('buildQueryString', () => {
     it('should build query string from params', () => {
       const result = buildQueryString({ foo: 'bar', baz: 123 });
-      expect(result).toBe('?foo=bar&baz=123');
+      expect(result).toBe('foo=bar&baz=123');
     });
 
     it('should filter out undefined, null, and empty values', () => {
@@ -113,7 +113,7 @@ describe('Utils', () => {
         nullValue: null,
         undefinedValue: undefined,
       });
-      expect(result).toBe('?foo=bar');
+      expect(result).toBe('foo=bar');
     });
 
     it('should return empty string if no valid params', () => {
@@ -127,12 +127,12 @@ describe('Utils', () => {
 
     it('should handle arrays', () => {
       const result = buildQueryString({ ids: ['1', '2', '3'] });
-      expect(result).toBe('?ids=1&ids=2&ids=3');
+      expect(result).toBe('ids=1&ids=2&ids=3');
     });
 
     it('should handle boolean values', () => {
       const result = buildQueryString({ active: true, deleted: false });
-      expect(result).toBe('?active=true&deleted=false');
+      expect(result).toBe('active=true&deleted=false');
     });
   });
 

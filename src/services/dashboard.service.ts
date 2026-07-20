@@ -208,22 +208,23 @@ export class DashboardService extends BaseService {
    *
    * `PUT /rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}`
    *
+   * Deviates from the Go SDK, which decodes a gadget from the response body.
+   * The endpoint is documented as returning `204 No Content`, so there is no
+   * body to decode and attempting to validate one fails against a live
+   * instance.
+   *
    * @param dashboardId - ID of the dashboard
    * @param gadgetId - ID of the gadget
    * @param input - Fields to change (title, color, position)
-   * @returns The updated gadget
+   * @returns Nothing; resolves once the gadget is updated
    */
   async updateGadget(
     dashboardId: string,
     gadgetId: number,
     input: UpdateGadgetInput
-  ): Promise<DashboardGadget> {
+  ): Promise<void> {
     const body = UpdateGadgetInputSchema.parse(input);
-    return this.putMethod(
-      `/dashboard/${dashboardId}/gadget/${String(gadgetId)}`,
-      DashboardGadgetSchema,
-      body
-    );
+    await this.putMethodRaw(`/dashboard/${dashboardId}/gadget/${String(gadgetId)}`, body);
   }
 
   /**

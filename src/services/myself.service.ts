@@ -2,7 +2,7 @@ import { BaseService } from './base.service.js';
 import {
   CurrentUserSchema,
   UserPreferencesSchema,
-  UserPreferenceMapSchema,
+  PreferenceValueSchema,
   SetUserPreferencesInputSchema,
   type CurrentUser,
   type UserPreferences,
@@ -67,26 +67,28 @@ export class MyselfService extends BaseService {
    *
    * `GET /rest/api/3/mypreferences?key={key}`
    *
+   * Deviates from the Go SDK, which decodes the response into a map and then
+   * indexes it by `key`. The endpoint returns the preference value itself, not
+   * an object keyed by the preference name, so the Go shape never matches.
+   * Non-string JSON scalars (a boolean or numeric preference) are coerced to
+   * their string form.
+   *
    * @param key - The preference key
    * @returns The preference value
-   * @throws If the preference is not present in the response
    */
   async getPreference(key: string): Promise<string> {
     const params = this.buildParams({ key });
-    const result = await this.getMethod(MY_PREFERENCES_PATH, UserPreferenceMapSchema, params);
-
-    const value = result[key];
-    if (value === undefined) {
-      throw new Error(`Preference not found: ${key}`);
-    }
-
-    return value;
+    return this.getMethod(MY_PREFERENCES_PATH, PreferenceValueSchema, params);
   }
 
   /**
    * Set a single preference of the current user
    *
    * `PUT /rest/api/3/mypreferences?key={key}`
+   *
+   * Deviates from the Go SDK, which sends `{[key]: value}` as the body. The
+   * endpoint takes the key from the required `key` query parameter and the
+   * request body is the raw value itself (a plain string, max 255 characters).
    *
    * @param key - The preference key
    * @param value - The preference value
@@ -95,13 +97,7 @@ export class MyselfService extends BaseService {
   async setPreference(key: string, value: string): Promise<void> {
     const params = this.buildParams({ key });
 
-    await this.http.put(
-      this.buildPath(MY_PREFERENCES_PATH),
-      { [key]: value },
-      {
-        params,
-      }
-    );
+    await this.http.put(this.buildPath(MY_PREFERENCES_PATH), value, { params });
   }
 
   /**

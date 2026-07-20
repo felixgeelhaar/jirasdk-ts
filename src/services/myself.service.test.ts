@@ -101,9 +101,11 @@ describe('MyselfService', () => {
     });
   });
 
+  // `GET /mypreferences?key=` returns the value itself, not a map keyed by
+  // preference name as the Go SDK assumes.
   describe('getPreference', () => {
-    it('should fetch a single preference by key', async () => {
-      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ locale: 'en_US' }));
+    it('should fetch a single preference value by key', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse('en_US'));
 
       const value = await service.getPreference('locale');
 
@@ -115,22 +117,32 @@ describe('MyselfService', () => {
       expect(value).toBe('en_US');
     });
 
-    it('should throw when the preference is missing from the response', async () => {
-      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ timeZone: 'UTC' }));
+    it('should coerce non-string scalar preference values', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(true));
+      await expect(service.getPreference('jira.user.locale.notice')).resolves.toBe('true');
 
-      await expect(service.getPreference('locale')).rejects.toThrow('Preference not found: locale');
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(42));
+      await expect(service.getPreference('pageSize')).resolves.toBe('42');
+    });
+
+    it('should reject a non-scalar response body', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ locale: 'en_US' }));
+
+      await expect(service.getPreference('locale')).rejects.toThrow();
     });
   });
 
+  // The key travels as a query parameter; the body is the bare value, not the
+  // `{[key]: value}` object the Go SDK sends.
   describe('setPreference', () => {
-    it('should set a single preference', async () => {
+    it('should send the raw value as the body with the key as a query param', async () => {
       vi.mocked(mockHttp.put).mockResolvedValueOnce(createMockResponse(null));
 
       await service.setPreference('locale', 'en_US');
 
       expect(mockHttp.put).toHaveBeenCalledWith(
         '/rest/api/3/mypreferences',
-        { locale: 'en_US' },
+        'en_US',
         expect.objectContaining({ params: { key: 'locale' } })
       );
     });

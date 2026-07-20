@@ -42,18 +42,32 @@ export class LabelService extends BaseService {
   /**
    * Get label suggestions for a query string.
    *
-   * `GET /rest/api/3/label/suggest`
+   * `GET /rest/api/3/jql/autocompletedata/suggestions?fieldName=labels`
+   *
+   * Deviates from the Go SDK, which calls `GET /rest/api/3/label/suggest` and
+   * reads a `{suggestions: [...]}` envelope. That endpoint is not part of the
+   * v3 API — the Labels group only documents `GET /rest/api/3/label` — so the
+   * Go call 404s. Label autocompletion is served by the JQL autocomplete
+   * endpoint, which returns `{results: [{value, displayName}]}`.
    *
    * @param query - The partial label to get suggestions for.
    * @returns The suggested label values.
    */
   async suggest(query: string): Promise<string[]> {
     const params = this.buildParams({
-      query: query === '' ? undefined : query,
+      fieldName: 'labels',
+      fieldValue: query === '' ? undefined : query,
     });
 
-    const result = await this.getMethod('/label/suggest', LabelSuggestionsSchema, params);
-    return result.suggestions;
+    const result = await this.getMethod(
+      '/jql/autocompletedata/suggestions',
+      LabelSuggestionsSchema,
+      params
+    );
+
+    return (result.results ?? []).flatMap((suggestion) =>
+      suggestion.value === undefined ? [] : [suggestion.value]
+    );
   }
 
   /**

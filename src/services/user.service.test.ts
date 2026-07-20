@@ -319,9 +319,11 @@ describe('UserService', () => {
 
       await service.setDefaultColumns(['issuekey', 'summary']);
 
+      // UserColumnRequestBody wraps the IDs in a `columns` array; the Go SDK
+      // sends a bare JSON array.
       expect(mockHttp.put).toHaveBeenCalledWith(
         '/rest/api/3/user/columns',
-        ['issuekey', 'summary'],
+        { columns: ['issuekey', 'summary'] },
         undefined
       );
     });

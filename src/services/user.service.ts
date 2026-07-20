@@ -258,11 +258,16 @@ export class UserService extends BaseService {
    *
    * `PUT /rest/api/3/user/columns`
    *
+   * Deviates from the Go SDK, which sends a bare JSON array as the body. The
+   * documented request body is `UserColumnRequestBody`, an object with a
+   * `columns` array — "The ID of a column to set. To set multiple columns, send
+   * multiple `columns` parameters."
+   *
    * @param columns - Column IDs, e.g. `['issuekey', 'summary', 'status']`
    * @returns Nothing
    */
   async setDefaultColumns(columns: string[]): Promise<void> {
-    await this.putMethodRaw('/user/columns', columns);
+    await this.putMethodRaw('/user/columns', { columns });
   }
 
   /**

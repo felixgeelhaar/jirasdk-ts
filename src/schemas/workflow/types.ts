@@ -105,10 +105,24 @@ export type WorkflowTransitionsResponse = z.infer<typeof WorkflowTransitionsResp
 /**
  * A Jira workflow
  */
+/**
+ * Identifier of a published workflow (`PublishedWorkflowId`)
+ *
+ * `GET /workflow/search` nests the workflow's name and entity ID inside `id`;
+ * there is no top-level `name` field.
+ */
+export const PublishedWorkflowIdSchema = z
+  .object({
+    name: z.string(),
+    entityId: z.string().optional(),
+  })
+  .loose();
+
+export type PublishedWorkflowId = z.infer<typeof PublishedWorkflowIdSchema>;
+
 export const WorkflowSchema = z
   .object({
-    id: z.string(),
-    name: z.string(),
+    id: PublishedWorkflowIdSchema,
     description: z.string().optional(),
     statuses: z.array(WorkflowStatusSchema).optional(),
     isDefault: z.boolean().optional(),

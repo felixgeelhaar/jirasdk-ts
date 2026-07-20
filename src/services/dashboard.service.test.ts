@@ -302,12 +302,12 @@ describe('DashboardService', () => {
   });
 
   describe('updateGadget', () => {
-    it('should update a gadget', async () => {
-      vi.mocked(mockHttp.put).mockResolvedValueOnce(
-        createMockResponse(createMockGadget(20000, 'Updated Title'))
-      );
+    // The endpoint returns 204 No Content, so nothing is decoded from the
+    // response (deviation from the Go SDK, which decodes a gadget).
+    it('should update a gadget and return nothing', async () => {
+      vi.mocked(mockHttp.put).mockResolvedValueOnce(createMockResponse(null));
 
-      const gadget = await service.updateGadget('10000', 20000, {
+      const result = await service.updateGadget('10000', 20000, {
         title: 'Updated Title',
         position: { row: 1, column: 0 },
       });
@@ -320,7 +320,13 @@ describe('DashboardService', () => {
         }),
         undefined
       );
-      expect(gadget.title).toBe('Updated Title');
+      expect(result).toBeUndefined();
+    });
+
+    it('should not attempt to validate an empty 204 body', async () => {
+      vi.mocked(mockHttp.put).mockResolvedValueOnce(createMockResponse(''));
+
+      await expect(service.updateGadget('10000', 20000, { title: 'x' })).resolves.toBeUndefined();
     });
   });
 

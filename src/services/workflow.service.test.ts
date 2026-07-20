@@ -28,10 +28,11 @@ function createMockResponse<T>(data: T): HttpResponse<T> {
   };
 }
 
-function createMockWorkflow(id: string, name: string): unknown {
+// `GET /workflow/search` nests the identity under `id` (PublishedWorkflowId);
+// there is no top-level `name`.
+function createMockWorkflow(entityId: string, name: string): unknown {
   return {
-    id,
-    name,
+    id: { entityId, name },
     description: 'A workflow',
     isDefault: false,
   };
@@ -170,7 +171,7 @@ describe('WorkflowService', () => {
 
       const names: string[] = [];
       for await (const workflow of service.iterate({ maxResults: 2 })) {
-        names.push(workflow.name);
+        names.push(workflow.id.name);
       }
 
       expect(names).toEqual(['A', 'B', 'C']);
@@ -205,30 +206,62 @@ describe('WorkflowService', () => {
     });
   });
 
+  // `GET /rest/api/3/workflow/{idOrName}` (the Go SDK's read path) does not
+  // exist in the v3 API — only DELETE is defined on that path — so `get()` is
+  // built on `GET /workflow/search`.
   describe('get', () => {
-    it('should fetch a workflow by id', async () => {
+    it('should resolve a workflow by name via the search endpoint', async () => {
       vi.mocked(mockHttp.get).mockResolvedValueOnce(
-        createMockResponse(createMockWorkflow('1', 'Default'))
+        createMockResponse({
+          startAt: 0,
+          maxResults: 50,
+          total: 1,
+          isLast: true,
+          values: [createMockWorkflow('abc-123', 'Default')],
+        })
       );
 
-      const workflow = await service.get('1');
-
-      expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/workflow/1', undefined, undefined);
-      expect(workflow.name).toBe('Default');
-    });
-
-    it('should URL-encode a workflow name', async () => {
-      vi.mocked(mockHttp.get).mockResolvedValueOnce(
-        createMockResponse(createMockWorkflow('1', 'My Workflow'))
-      );
-
-      await service.get('My Workflow');
+      const workflow = await service.get('Default');
 
       expect(mockHttp.get).toHaveBeenCalledWith(
-        '/rest/api/3/workflow/My%20Workflow',
-        undefined,
+        '/rest/api/3/workflow/search',
+        { workflowName: 'Default' },
         undefined
       );
+      expect(workflow.id.name).toBe('Default');
+      expect(workflow.id.entityId).toBe('abc-123');
+    });
+
+    it('should fall back to an unfiltered scan when given an entity ID', async () => {
+      vi.mocked(mockHttp.get)
+        // Name filter matches nothing, since the argument is an entity ID.
+        .mockResolvedValueOnce(
+          createMockResponse({ startAt: 0, maxResults: 50, total: 0, isLast: true, values: [] })
+        )
+        .mockResolvedValueOnce(
+          createMockResponse({
+            startAt: 0,
+            maxResults: 50,
+            total: 2,
+            isLast: true,
+            values: [
+              createMockWorkflow('other', 'Other'),
+              createMockWorkflow('abc-123', 'Default'),
+            ],
+          })
+        );
+
+      const workflow = await service.get('abc-123');
+
+      expect(workflow.id.name).toBe('Default');
+    });
+
+    it('should throw when no workflow matches', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValue(
+        createMockResponse({ startAt: 0, maxResults: 50, total: 0, isLast: true, values: [] })
+      );
+
+      await expect(service.get('Nope')).rejects.toThrow('Workflow not found: Nope');
     });
   });
 

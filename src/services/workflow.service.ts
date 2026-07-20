@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { BaseService } from './base.service.js';
 import {
-  WorkflowSchema,
   WorkflowSearchResultSchema,
   WorkflowStatusSchema,
   WorkflowStatusCategorySchema,
@@ -169,19 +168,41 @@ export class WorkflowService extends BaseService {
   }
 
   /**
-   * Get a workflow by ID or by name
+   * Get a workflow by entity ID or by name
    *
-   * `GET /rest/api/3/workflow/{workflowIdOrName}`
+   * `GET /rest/api/3/workflow/search` (paged)
    *
-   * Mirrors the Go SDK, where `Workflow.Get` accepts either a workflow ID or a
-   * workflow name in the same path segment. Names containing spaces or other
-   * reserved characters are URL-encoded.
+   * Deviates from the Go SDK, which issues
+   * `GET /rest/api/3/workflow/{workflowIdOrName}`. No such read endpoint exists
+   * in the v3 API — the only `/rest/api/3/workflow/{entityId}` operation is
+   * `DELETE` (delete inactive workflow), so the Go call returns 405/404. The
+   * documented read path is `GET /rest/api/3/workflow/search`.
    *
-   * @param workflowIdOrName - Workflow ID or workflow name
+   * The ID-or-name behaviour is preserved: the search is narrowed with the
+   * `workflowName` filter, and the returned page is matched against both the
+   * workflow's `id.name` and its `id.entityId`. If the argument is an entity ID
+   * rather than a name the name filter yields nothing, so the search is retried
+   * unfiltered and matched on `entityId`.
+   *
+   * @param workflowIdOrName - Workflow entity ID or workflow name
    * @returns The workflow
+   * @throws If no workflow matches
    */
   async get(workflowIdOrName: string): Promise<Workflow> {
-    return this.getMethod(`/workflow/${encodeURIComponent(workflowIdOrName)}`, WorkflowSchema);
+    const byName = await this.list({ workflowName: workflowIdOrName });
+    const named = byName.values.find((workflow) => workflow.id.name === workflowIdOrName);
+    if (named !== undefined) {
+      return named;
+    }
+
+    // Not a name — fall back to scanning for a matching entity ID.
+    for await (const workflow of this.iterate()) {
+      if (workflow.id.entityId === workflowIdOrName || workflow.id.name === workflowIdOrName) {
+        return workflow;
+      }
+    }
+
+    throw new Error(`Workflow not found: ${workflowIdOrName}`);
   }
 
   /**

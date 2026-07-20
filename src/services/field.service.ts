@@ -4,14 +4,14 @@ import {
   FieldSchema,
   FieldContextSchema,
   FieldContextListResponseSchema,
-  FieldOptionSchema,
   FieldOptionListResponseSchema,
   ContextProjectMappingListResponseSchema,
   CreateFieldInputSchema,
   UpdateFieldInputSchema,
   CreateFieldContextInputSchema,
   UpdateFieldContextInputSchema,
-  CreateFieldOptionInputSchema,
+  CreateFieldOptionsRequestSchema,
+  CreateFieldOptionsResponseSchema,
   AssociateContextProjectsInputSchema,
   RemoveContextProjectsInputSchema,
   type Field,
@@ -194,26 +194,55 @@ export class FieldService extends BaseService {
   }
 
   /**
-   * Create an option on a select / multi-select custom field context
+   * Create one or more options on a select / multi-select custom field context
    *
    * `POST /rest/api/3/field/{fieldId}/context/{contextId}/option`
+   *
+   * The endpoint is bulk in both directions: it takes `{ options: [...] }` and
+   * returns `{ options: [...] }`. The Go SDK posts a bare option object and
+   * decodes a bare option, which this endpoint rejects.
+   *
+   * @param fieldId - Field ID or key
+   * @param contextId - Context ID
+   * @param inputs - The options to create
+   * @returns The created options, in the order the API returned them
+   */
+  async createOptions(
+    fieldId: string,
+    contextId: string,
+    inputs: CreateFieldOptionInput[]
+  ): Promise<FieldOption[]> {
+    const body = CreateFieldOptionsRequestSchema.parse({ options: inputs });
+    const result = await this.postMethod(
+      `/field/${fieldId}/context/${contextId}/option`,
+      CreateFieldOptionsResponseSchema,
+      body
+    );
+    return result.options;
+  }
+
+  /**
+   * Create a single option on a select / multi-select custom field context
+   *
+   * Convenience wrapper over {@link createOptions} for the common one-option
+   * case.
    *
    * @param fieldId - Field ID or key
    * @param contextId - Context ID
    * @param input - The option value
    * @returns The created option
+   * @throws If the API reports success but returns no option
    */
   async createOption(
     fieldId: string,
     contextId: string,
     input: CreateFieldOptionInput
   ): Promise<FieldOption> {
-    const body = CreateFieldOptionInputSchema.parse(input);
-    return this.postMethod(
-      `/field/${fieldId}/context/${contextId}/option`,
-      FieldOptionSchema,
-      body
-    );
+    const [option] = await this.createOptions(fieldId, contextId, [input]);
+    if (option === undefined) {
+      throw new Error('Jira accepted the option but returned no created option');
+    }
+    return option;
   }
 
   /**

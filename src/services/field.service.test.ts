@@ -234,9 +234,11 @@ describe('FieldService', () => {
     it('should unwrap the values array', async () => {
       vi.mocked(mockHttp.get).mockResolvedValueOnce(
         createMockResponse({
+          // CustomFieldContextOption.id is a string, not the int64 the Go SDK
+          // models; `optionId` (cascading parent) is a string too.
           values: [
             { id: '10001', value: 'High', disabled: false },
-            { id: 10002, value: 'Low' },
+            { id: '10002', value: 'Low', optionId: '10001' },
           ],
         })
       );
@@ -250,13 +252,48 @@ describe('FieldService', () => {
       );
       expect(options).toHaveLength(2);
       expect(options[0]?.value).toBe('High');
+      expect(options[0]?.id).toBe('10001');
+      expect(options[1]?.optionId).toBe('10001');
+    });
+  });
+
+  describe('createOptions', () => {
+    it('should wrap the options in an options array and unwrap the response', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(
+        createMockResponse({
+          options: [
+            { id: '10001', value: 'High Priority' },
+            { id: '10002', value: 'Low Priority' },
+          ],
+        })
+      );
+
+      const options = await service.createOptions('customfield_10000', '10100', [
+        { value: 'High Priority' },
+        { value: 'Low Priority' },
+      ]);
+
+      // The endpoint is bulk in both directions; a bare option object is
+      // rejected by Jira. See CustomFieldCreatedContextOptionsList.
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        '/rest/api/3/field/customfield_10000/context/10100/option',
+        { options: [{ value: 'High Priority' }, { value: 'Low Priority' }] },
+        undefined
+      );
+      expect(options).toHaveLength(2);
+      expect(options[1]?.value).toBe('Low Priority');
+    });
+
+    it('should reject an empty options array before making a request', async () => {
+      await expect(service.createOptions('customfield_10000', '10100', [])).rejects.toThrow();
+      expect(mockHttp.post).not.toHaveBeenCalled();
     });
   });
 
   describe('createOption', () => {
-    it('should create a field option', async () => {
+    it('should create a single field option via the bulk endpoint', async () => {
       vi.mocked(mockHttp.post).mockResolvedValueOnce(
-        createMockResponse({ id: '10001', value: 'High Priority' })
+        createMockResponse({ options: [{ id: '10001', value: 'High Priority' }] })
       );
 
       const option = await service.createOption('customfield_10000', '10100', {
@@ -265,10 +302,18 @@ describe('FieldService', () => {
 
       expect(mockHttp.post).toHaveBeenCalledWith(
         '/rest/api/3/field/customfield_10000/context/10100/option',
-        { value: 'High Priority' },
+        { options: [{ value: 'High Priority' }] },
         undefined
       );
       expect(option.value).toBe('High Priority');
+    });
+
+    it('should throw when Jira returns no created option', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse({ options: [] }));
+
+      await expect(
+        service.createOption('customfield_10000', '10100', { value: 'High Priority' })
+      ).rejects.toThrow(/returned no created option/);
     });
   });
 

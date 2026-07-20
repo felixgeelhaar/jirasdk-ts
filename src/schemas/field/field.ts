@@ -110,16 +110,22 @@ export const FieldContextSchema = z
 export type FieldContext = z.infer<typeof FieldContextSchema>;
 
 /**
- * An option of a select / multi-select custom field
+ * An option of a select / multi-select custom field context
+ * (`CustomFieldContextOption`)
  *
- * Jira has returned this identifier both as a string and as a number
- * depending on the endpoint, so both are accepted.
+ * Deviates from the Go SDK, which models this ID as an `int64`. The context
+ * option endpoints document `id` as a required **string** (`optionId`, the
+ * cascading parent, is a string too). The `int64` form belongs to a different
+ * schema, `IssueFieldOption`, used by the app-scoped
+ * `/rest/api/3/field/{fieldKey}/option` endpoints — not by the context
+ * options this type is decoded from.
  */
 export const FieldOptionSchema = z
   .object({
-    id: z.union([z.string(), z.number()]).optional(),
+    id: z.string().optional(),
     value: z.string(),
     disabled: z.boolean().optional(),
+    optionId: z.string().optional(),
     position: z.number().int().optional(),
   })
   .loose();
@@ -237,9 +243,36 @@ export type UpdateFieldContextInput = z.infer<typeof UpdateFieldContextInputSche
 export const CreateFieldOptionInputSchema = z.object({
   value: z.string().min(1, { error: 'option value is required' }),
   disabled: z.boolean().optional(),
+  /** Parent option ID, for cascading select fields. */
+  optionId: z.string().optional(),
 });
 
 export type CreateFieldOptionInput = z.infer<typeof CreateFieldOptionInputSchema>;
+
+/**
+ * Request body for the context option create endpoint.
+ *
+ * The endpoint is bulk-only: it takes an `options` array, never a bare option.
+ * The Go SDK posts a single option object, which the API rejects.
+ */
+export const CreateFieldOptionsRequestSchema = z.object({
+  options: z.array(CreateFieldOptionInputSchema).min(1, {
+    error: 'at least one option is required',
+  }),
+});
+
+export type CreateFieldOptionsRequest = z.infer<typeof CreateFieldOptionsRequestSchema>;
+
+/**
+ * Response from the context option create endpoint (`CustomFieldCreatedContextOptionsList`).
+ */
+export const CreateFieldOptionsResponseSchema = z
+  .object({
+    options: z.array(FieldOptionSchema),
+  })
+  .loose();
+
+export type CreateFieldOptionsResponse = z.infer<typeof CreateFieldOptionsResponseSchema>;
 
 /**
  * Input for associating projects with a custom field context

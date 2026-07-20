@@ -77,28 +77,50 @@ describe('LabelService', () => {
     });
   });
 
+  // `/rest/api/3/label/suggest` (the Go SDK's path) is not part of the v3 API.
+  // Label autocompletion is served by the JQL autocomplete endpoint.
   describe('suggest', () => {
-    it('should return label suggestions', async () => {
+    it('should return label suggestions from the JQL autocomplete endpoint', async () => {
       vi.mocked(mockHttp.get).mockResolvedValueOnce(
-        createMockResponse({ suggestions: ['bug', 'bugfix'] })
+        createMockResponse({
+          results: [
+            { value: 'bug', displayName: '<b>bu</b>g' },
+            { value: 'bugfix', displayName: '<b>bu</b>gfix' },
+          ],
+        })
       );
 
       const suggestions = await service.suggest('bu');
 
       expect(mockHttp.get).toHaveBeenCalledWith(
-        '/rest/api/3/label/suggest',
-        { query: 'bu' },
+        '/rest/api/3/jql/autocompletedata/suggestions',
+        { fieldName: 'labels', fieldValue: 'bu' },
         undefined
       );
       expect(suggestions).toEqual(['bug', 'bugfix']);
     });
 
-    it('should omit an empty query', async () => {
-      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ suggestions: [] }));
+    it('should omit an empty query but always send fieldName', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ results: [] }));
 
-      await service.suggest('');
+      const suggestions = await service.suggest('');
 
-      expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/label/suggest', {}, undefined);
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/jql/autocompletedata/suggestions',
+        { fieldName: 'labels' },
+        undefined
+      );
+      expect(suggestions).toEqual([]);
+    });
+
+    it('should tolerate a missing results array and value-less entries', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({}));
+      await expect(service.suggest('bu')).resolves.toEqual([]);
+
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse({ results: [{ displayName: 'no value' }, { value: 'bug' }] })
+      );
+      await expect(service.suggest('bu')).resolves.toEqual(['bug']);
     });
   });
 

@@ -41,15 +41,17 @@ export type WebhookPage = z.infer<typeof WebhookPageSchema>;
 /**
  * Input for registering a single webhook.
  *
- * Write path — strict, mirroring the validation the Go SDK performs
- * before issuing the request.
+ * Write path — strict. Deviates from the Go SDK, whose per-webhook struct
+ * carries `name` and `url`. The documented `WebhookDetails` schema has neither:
+ * the callback `url` is a single top-level field on the request (one URL per
+ * app), there is no `name`, `jqlFilter` is required, and the object rejects
+ * additional properties — so a Go-shaped body is rejected by Jira.
  */
 export const CreateWebhookInputSchema = z.object({
-  name: z.string().min(1, { error: 'name is required' }),
-  url: z.url({ error: 'url must be a valid URL' }),
   events: z.array(z.string()).min(1, { error: 'at least one event is required' }),
-  jqlFilter: z.string().optional(),
-  excludeBody: z.boolean().optional(),
+  jqlFilter: z.string(),
+  fieldIdsFilter: z.array(z.string()).optional(),
+  issuePropertyKeysFilter: z.array(z.string()).optional(),
 });
 
 export type CreateWebhookInput = z.infer<typeof CreateWebhookInputSchema>;

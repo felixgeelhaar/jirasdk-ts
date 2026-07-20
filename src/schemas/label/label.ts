@@ -16,11 +16,24 @@ export const LabelPageSchema = z
 export type LabelPage = z.infer<typeof LabelPageSchema>;
 
 /**
- * Label suggestions returned by `GET /rest/api/3/label/suggest`.
+ * Autocomplete suggestions returned by
+ * `GET /rest/api/3/jql/autocompletedata/suggestions` (`AutoCompleteSuggestions`).
+ *
+ * The Go SDK's `{suggestions: [...]}` envelope belongs to a
+ * `/rest/api/3/label/suggest` endpoint that does not exist in the v3 API.
  */
 export const LabelSuggestionsSchema = z
   .object({
-    suggestions: z.array(z.string()),
+    results: z
+      .array(
+        z
+          .object({
+            value: z.string().optional(),
+            displayName: z.string().optional(),
+          })
+          .loose()
+      )
+      .optional(),
   })
   .loose();
 

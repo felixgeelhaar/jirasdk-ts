@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WebhookService } from './webhook.service.js';
 import type { HttpClient, HttpResponse } from '../transport/index.js';
+import type { CreateWebhookInput } from '../schemas/webhook/index.js';
 
 // Create mock HTTP client
 function createMockHttpClient(): HttpClient {
@@ -145,22 +146,23 @@ describe('WebhookService', () => {
         createMockResponse({ webhookRegistrationResult: [{ createdWebhookId: 10000 }] })
       );
 
-      const results = await service.create([
+      const results = await service.create('https://example.com/webhooks/jira', [
         {
-          name: 'Issue Created Webhook',
-          url: 'https://example.com/webhooks/jira',
           events: ['jira:issue_created'],
+          jqlFilter: 'project = PROJ',
         },
       ]);
 
+      // Documented shape: a single top-level `url`, and per-webhook objects
+      // carrying only events/filters (no `name`, no `url`).
       expect(mockHttp.post).toHaveBeenCalledWith(
         '/rest/api/3/webhook',
         {
+          url: 'https://example.com/webhooks/jira',
           webhooks: [
             {
-              name: 'Issue Created Webhook',
-              url: 'https://example.com/webhooks/jira',
               events: ['jira:issue_created'],
+              jqlFilter: 'project = PROJ',
             },
           ],
         },
@@ -171,12 +173,22 @@ describe('WebhookService', () => {
     });
 
     it('should reject an empty list', async () => {
-      await expect(service.create([])).rejects.toThrow('at least one webhook is required');
+      await expect(service.create('https://example.com', [])).rejects.toThrow(
+        'at least one webhook is required'
+      );
     });
 
     it('should reject a webhook without events', async () => {
       await expect(
-        service.create([{ name: 'x', url: 'https://example.com', events: [] }])
+        service.create('https://example.com', [{ events: [], jqlFilter: 'project = PROJ' }])
+      ).rejects.toThrow();
+    });
+
+    it('should reject a webhook without a jqlFilter', async () => {
+      await expect(
+        service.create('https://example.com', [
+          { events: ['jira:issue_created'] } as unknown as CreateWebhookInput,
+        ])
       ).rejects.toThrow();
     });
   });
@@ -197,14 +209,19 @@ describe('WebhookService', () => {
   });
 
   describe('deleteWebhooks', () => {
-    it('should delete webhooks by ID', async () => {
-      vi.mocked(mockHttp.delete).mockResolvedValueOnce(createMockResponse(undefined));
+    // The IDs travel in a JSON body (ContainerForWebhookIDs), not as repeated
+    // `webhookId` query parameters as the Go SDK sends them.
+    it('should delete webhooks via a JSON body', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(undefined));
 
       await service.deleteWebhooks([10000, 10001]);
 
-      expect(mockHttp.delete).toHaveBeenCalledWith('/rest/api/3/webhook', {
-        params: { webhookId: ['10000', '10001'] },
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: '/rest/api/3/webhook',
+        body: { webhookIds: [10000, 10001] },
       });
+      expect(mockHttp.delete).not.toHaveBeenCalled();
     });
 
     it('should reject an empty ID list', async () => {
