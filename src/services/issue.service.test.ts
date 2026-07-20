@@ -814,6 +814,7 @@ describe('IssueService', () => {
 
       vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockTypes));
 
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- the deprecated method stays supported, so it stays tested
       const result = await service.listIssueLinkTypes();
 
       expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/issueLinkType', undefined, undefined);
@@ -831,6 +832,7 @@ describe('IssueService', () => {
 
       vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockType));
 
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- the deprecated method stays supported, so it stays tested
       const result = await service.getIssueLinkType('10000');
 
       expect(mockHttp.get).toHaveBeenCalledWith(

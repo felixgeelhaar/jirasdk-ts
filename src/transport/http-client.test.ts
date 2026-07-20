@@ -14,25 +14,46 @@ import { ApiTokenAuth } from '../auth/index.js';
 
 type FetchMock = ReturnType<typeof vi.fn<typeof fetch>>;
 
-/**
- * A fetch mock that always resolves with the given response. Each call gets a
- * fresh clone so a client may be exercised more than once.
- */
-function fetchReturning(response: Response): FetchMock {
-  return vi.fn<typeof fetch>().mockImplementation(() => Promise.resolve(response.clone()));
+/** Describes a response without building it, so each call can get a fresh one. */
+interface ResponseSpec {
+  body: BodyInit | null;
+  status: number;
+  statusText?: string;
+  headers: Record<string, string>;
 }
 
-/** Build a JSON response with the standard content-type. */
+/**
+ * A fetch mock that resolves with an equivalent response on every call.
+ *
+ * It builds a NEW Response per call rather than cloning a shared one. Cloning
+ * a single Response across calls tees the same underlying stream, which made
+ * the suite fail intermittently with "Body has already been read" once a
+ * retry path consumed a branch.
+ */
+function fetchReturning(spec: ResponseSpec): FetchMock {
+  return vi.fn<typeof fetch>().mockImplementation(() =>
+    Promise.resolve(
+      new Response(spec.body, {
+        status: spec.status,
+        ...(spec.statusText !== undefined && { statusText: spec.statusText }),
+        headers: spec.headers,
+      })
+    )
+  );
+}
+
+/** Describe a JSON response with the standard content-type. */
 function jsonResponse(
   body: unknown,
   init: { status?: number; statusText?: string; headers?: Record<string, string> } = {}
-): Response {
+): ResponseSpec {
   const { status = 200, statusText, headers = {} } = init;
-  return new Response(JSON.stringify(body), {
+  return {
+    body: JSON.stringify(body),
     status,
     ...(statusText !== undefined && { statusText }),
     headers: { 'content-type': 'application/json', ...headers },
-  });
+  };
 }
 
 /**
@@ -258,9 +279,11 @@ describe('HttpClient response parsing', () => {
   });
 
   it('yields null for an empty JSON body', async () => {
-    const fetchMock = fetchReturning(
-      new Response('', { status: 200, headers: { 'content-type': 'application/json' } })
-    );
+    const fetchMock = fetchReturning({
+      body: '',
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
     const client = createHttpClient({ baseUrl: 'https://api.example.com', fetch: fetchMock });
 
     const response = await client.get('/thing');
@@ -269,9 +292,11 @@ describe('HttpClient response parsing', () => {
   });
 
   it('returns text for non-JSON content types', async () => {
-    const fetchMock = fetchReturning(
-      new Response('plain words', { status: 200, headers: { 'content-type': 'text/plain' } })
-    );
+    const fetchMock = fetchReturning({
+      body: 'plain words',
+      status: 200,
+      headers: { 'content-type': 'text/plain' },
+    });
     const client = createHttpClient({ baseUrl: 'https://api.example.com', fetch: fetchMock });
 
     const response = await client.get('/thing');
@@ -280,7 +305,7 @@ describe('HttpClient response parsing', () => {
   });
 
   it('returns an empty string for a 204 with no content type', async () => {
-    const fetchMock = fetchReturning(new Response(null, { status: 204 }));
+    const fetchMock = fetchReturning({ body: null, status: 204, headers: {} });
     const client = createHttpClient({ baseUrl: 'https://api.example.com', fetch: fetchMock });
 
     const response = await client.delete('/thing');
@@ -290,12 +315,11 @@ describe('HttpClient response parsing', () => {
   });
 
   it('returns a Blob when metadata.rawResponse is true', async () => {
-    const fetchMock = fetchReturning(
-      new Response('binary-ish', {
-        status: 200,
-        headers: { 'content-type': 'application/octet-stream' },
-      })
-    );
+    const fetchMock = fetchReturning({
+      body: 'binary-ish',
+      status: 200,
+      headers: { 'content-type': 'application/octet-stream' },
+    });
     const client = createHttpClient({ baseUrl: 'https://api.example.com', fetch: fetchMock });
 
     const response = await client.get('/attachment', undefined, {

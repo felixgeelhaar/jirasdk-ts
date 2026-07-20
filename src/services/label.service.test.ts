@@ -56,16 +56,19 @@ describe('LabelService', () => {
       expect(labels).toEqual(['bug', 'feature']);
     });
 
-    it('should pass pagination and query params', async () => {
+    it('should pass pagination params', async () => {
       vi.mocked(mockHttp.get).mockResolvedValueOnce(
         createMockResponse({ values: ['bug'], isLast: true })
       );
 
-      await service.list({ startAt: 10, maxResults: 25, query: 'bu' });
+      await service.list({ startAt: 10, maxResults: 25 });
 
+      // The endpoint accepts only startAt and maxResults. It used to be given a
+      // `query` param too, which it ignores - so the call returned the full
+      // unfiltered label list while looking like it filtered.
       expect(mockHttp.get).toHaveBeenCalledWith(
         '/rest/api/3/label',
-        { startAt: 10, maxResults: 25, query: 'bu' },
+        { startAt: 10, maxResults: 25 },
         undefined
       );
     });

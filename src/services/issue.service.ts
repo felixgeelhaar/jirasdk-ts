@@ -566,6 +566,11 @@ export class IssueService extends BaseService {
   /**
    * List all available issue link types
    *
+   * @deprecated Prefer `client.issueLinkTypes.list()`. Issue link types are
+   * instance-level configuration rather than a property of an issue; the
+   * dedicated service also offers create/update/delete. Kept for
+   * compatibility.
+   *
    * @returns Issue link types response
    */
   async listIssueLinkTypes(): Promise<IssueLinkTypesResponse> {
@@ -574,6 +579,8 @@ export class IssueService extends BaseService {
 
   /**
    * Get a specific issue link type
+   *
+   * @deprecated Prefer `client.issueLinkTypes.get()`. Kept for compatibility.
    *
    * @param linkTypeId - Issue link type ID
    * @returns Issue link type

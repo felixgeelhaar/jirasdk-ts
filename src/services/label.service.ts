@@ -18,7 +18,7 @@ const DEFAULT_LABEL_PAGE_SIZE = 50;
  * ```typescript
  * const client = new JiraClient({ ... });
  *
- * const labels = await client.labels.list({ query: 'bug', maxResults: 50 });
+ * const labels = await client.labels.list({ maxResults: 50 });
  *
  * for await (const label of client.labels.iterate()) {
  *   console.log(label);
@@ -27,11 +27,11 @@ const DEFAULT_LABEL_PAGE_SIZE = 50;
  */
 export class LabelService extends BaseService {
   /**
-   * List labels, optionally filtered by a query string.
+   * List labels.
    *
    * `GET /rest/api/3/label`
    *
-   * @param options - Pagination and query filter.
+   * @param options - Pagination options.
    * @returns The label values for the requested page.
    */
   async list(options?: ListLabelsOptions): Promise<string[]> {
@@ -130,10 +130,13 @@ export class LabelService extends BaseService {
    * Fetch a single page of labels including its pagination metadata.
    */
   private async listPage(options?: ListLabelsOptions): Promise<LabelPage> {
+    // GET /rest/api/3/label accepts only startAt and maxResults. A `query`
+    // parameter was previously offered here, but the endpoint ignores unknown
+    // parameters, so it silently returned the full unfiltered label list while
+    // appearing to filter. Use `suggest()` for prefix matching.
     const params = this.buildParams({
       startAt: options?.startAt,
       maxResults: options?.maxResults,
-      query: options?.query,
     });
 
     return this.getMethod('/label', LabelPageSchema, params);

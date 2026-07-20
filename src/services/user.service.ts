@@ -114,6 +114,12 @@ export interface FindUsersWithBrowsePermissionOptions {
 export class UserService extends BaseService {
   /**
    * Get the currently authenticated user
+   *
+   * @deprecated Prefer {@link MyselfService.get} via `client.myself.get()`.
+   * Both call `GET /rest/api/3/myself`, but MyselfService returns the richer
+   * `CurrentUser` shape (including `groups` and `expand`) and is the home of
+   * the related preference methods. This method is kept for compatibility and
+   * still works.
    */
   async getCurrentUser(options?: { expand?: string[] }): Promise<User> {
     const params = this.buildParams({

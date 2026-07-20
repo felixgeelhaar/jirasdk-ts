@@ -59,6 +59,7 @@ describe('UserService', () => {
 
       vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockUser));
 
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- the deprecated method stays supported, so it stays tested
       const user = await service.getCurrentUser();
 
       expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/myself', {}, undefined);
@@ -71,6 +72,7 @@ describe('UserService', () => {
 
       vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockUser));
 
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- the deprecated method stays supported, so it stays tested
       await service.getCurrentUser({ expand: ['groups', 'applicationRoles'] });
 
       expect(mockHttp.get).toHaveBeenCalledWith(

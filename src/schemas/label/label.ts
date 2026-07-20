@@ -52,9 +52,4 @@ export interface ListLabelsOptions {
    * Maximum number of labels to return per page.
    */
   maxResults?: number;
-
-  /**
-   * Filter labels by a substring query.
-   */
-  query?: string;
 }
