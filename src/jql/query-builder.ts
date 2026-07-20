@@ -281,7 +281,7 @@ export class JqlQueryBuilder {
 
   private clause(text: string): JqlQueryBuilder {
     const last = this.parts[this.parts.length - 1];
-    const needsConjunction = last !== undefined && last.kind === 'clause';
+    const needsConjunction = last?.kind === 'clause';
     const parts: Part[] = needsConjunction
       ? [...this.parts, { kind: 'operator', text: 'AND' }, { kind: 'clause', text }]
       : [...this.parts, { kind: 'clause', text }];

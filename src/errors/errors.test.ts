@@ -47,9 +47,10 @@ describe('NetworkError', () => {
 
 describe('TimeoutError', () => {
   it('should create a timeout error', () => {
-    const error = new TimeoutError('Request timed out', 5000);
+    const error = new TimeoutError('Request timed out', { timeoutMs: 5000 });
     expect(error.message).toBe('Request timed out');
     expect(error.code).toBe('TIMEOUT_ERROR');
+    expect(error.timeoutMs).toBe(5000);
   });
 });
 

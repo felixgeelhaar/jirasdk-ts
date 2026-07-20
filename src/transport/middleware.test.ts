@@ -4,7 +4,8 @@ import {
   createRetryMiddleware,
   createRateLimitMiddleware,
 } from './middleware.js';
-import type { MiddlewareContext, MiddlewareNext, HttpResponse, Logger } from './types.js';
+import type { MiddlewareContext, MiddlewareNext, HttpResponse } from './types.js';
+import type { Logger } from '../logging/index.js';
 import { RateLimitError, ServerError, ApiError, NotFoundError } from '../errors/api.error.js';
 import { NetworkError } from '../errors/network.error.js';
 
@@ -27,6 +28,7 @@ function createMockContext(overrides?: Partial<MiddlewareContext>): MiddlewareCo
       headers: {},
     },
     logger: createMockLogger(),
+    retryCount: 0,
     ...overrides,
   };
 }
@@ -38,6 +40,11 @@ function createMockResponse(overrides?: Partial<HttpResponse>): HttpResponse {
     statusText: 'OK',
     headers: new Headers(),
     data: {},
+    request: {
+      url: '/test',
+      method: 'GET',
+      headers: {},
+    },
     responseTime: 100,
     ...overrides,
   };

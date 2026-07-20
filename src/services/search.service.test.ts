@@ -251,7 +251,7 @@ describe('SearchService', () => {
       const issues = await service.all('project = PROJECT');
 
       expect(issues).toHaveLength(3);
-      expect(issues[0].key).toBe('PROJECT-1');
+      expect(issues[0]!.key).toBe('PROJECT-1');
     });
   });
 

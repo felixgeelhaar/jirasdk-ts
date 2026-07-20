@@ -7,6 +7,38 @@ import {
 } from './index.js';
 import type { MiddlewareContext, MiddlewareNext, HttpResponse, Middleware } from './index.js';
 import { ApiTokenAuth } from '../auth/index.js';
+import { NoopLogger } from '../logging/index.js';
+
+// Helper to build a fully-typed middleware context
+function createMiddlewareContext(overrides?: Partial<MiddlewareContext>): MiddlewareContext {
+  return {
+    request: {
+      url: '/test',
+      method: 'GET',
+      headers: {},
+    },
+    logger: new NoopLogger(),
+    retryCount: 0,
+    ...overrides,
+  };
+}
+
+// Helper to build a fully-typed HTTP response
+function createHttpResponse(overrides?: Partial<HttpResponse>): HttpResponse {
+  return {
+    status: 200,
+    statusText: 'OK',
+    headers: new Headers(),
+    data: {},
+    request: {
+      url: '/test',
+      method: 'GET',
+      headers: {},
+    },
+    responseTime: 1,
+    ...overrides,
+  };
+}
 
 // Create a more complete fetch mock
 function createMockResponse(options: {
@@ -106,7 +138,8 @@ describe('HttpClient', () => {
 
     // Headers are passed as a Headers object, extract and check
     const fetchCall = mockFetch.mock.calls[0];
-    const options = fetchCall[1] as RequestInit;
+    expect(fetchCall).toBeDefined();
+    const options = fetchCall![1] as RequestInit;
     const headers = options.headers as Headers;
     expect(headers.get('Authorization')).toMatch(/^Basic /);
   });
@@ -125,7 +158,9 @@ describe('HttpClient', () => {
 
     await client.get('/test', { foo: 'bar', baz: 123 });
 
-    const calledUrl = mockFetch.mock.calls[0][0] as string;
+    const fetchCall = mockFetch.mock.calls[0];
+    expect(fetchCall).toBeDefined();
+    const calledUrl = fetchCall![0] as string;
     expect(calledUrl).toContain('foo=bar');
     expect(calledUrl).toContain('baz=123');
   });
@@ -138,19 +173,9 @@ describe('createUserAgentMiddleware', () => {
       sdkVersion: '1.0.0',
     });
 
-    const context: MiddlewareContext = {
-      request: {
-        url: '/test',
-        method: 'GET',
-        headers: {},
-      },
-    };
+    const context: MiddlewareContext = createMiddlewareContext();
 
-    const next: MiddlewareNext = async () => ({
-      status: 200,
-      headers: {},
-      data: {},
-    });
+    const next: MiddlewareNext = async () => createHttpResponse();
 
     await middleware(context, next);
 
@@ -164,19 +189,9 @@ describe('createUserAgentMiddleware', () => {
       suffix: 'custom-suffix',
     });
 
-    const context: MiddlewareContext = {
-      request: {
-        url: '/test',
-        method: 'GET',
-        headers: {},
-      },
-    };
+    const context: MiddlewareContext = createMiddlewareContext();
 
-    const next: MiddlewareNext = async () => ({
-      status: 200,
-      headers: {},
-      data: {},
-    });
+    const next: MiddlewareNext = async () => createHttpResponse();
 
     await middleware(context, next);
 
@@ -188,19 +203,9 @@ describe('createRequestIdMiddleware', () => {
   it('should add request ID header', async () => {
     const middleware = createRequestIdMiddleware();
 
-    const context: MiddlewareContext = {
-      request: {
-        url: '/test',
-        method: 'GET',
-        headers: {},
-      },
-    };
+    const context: MiddlewareContext = createMiddlewareContext();
 
-    const next: MiddlewareNext = async () => ({
-      status: 200,
-      headers: {},
-      data: {},
-    });
+    const next: MiddlewareNext = async () => createHttpResponse();
 
     await middleware(context, next);
 
@@ -233,13 +238,11 @@ describe('composeMiddleware', () => {
 
     const composed = composeMiddleware(middleware1, middleware2);
 
-    const context: MiddlewareContext = {
-      request: { url: '/test', method: 'GET', headers: {} },
-    };
+    const context: MiddlewareContext = createMiddlewareContext();
 
     const next: MiddlewareNext = async () => {
       order.push('next');
-      return { status: 200, headers: {}, data: {} };
+      return createHttpResponse();
     };
 
     await composed(context, next);

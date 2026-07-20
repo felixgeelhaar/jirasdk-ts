@@ -3,7 +3,6 @@ import {
   UserSchema,
   UserRefSchema,
   UserInputSchema,
-  AvatarUrlsSchema,
   AccountTypeSchema,
   PaginationParamsSchema,
   JiraDateSchema,

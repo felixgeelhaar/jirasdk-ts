@@ -18,6 +18,8 @@ import {
   createDeferred,
   parseEnvNumber,
   parseEnvBoolean,
+  parseDuration,
+  formatDuration,
 } from './index.js';
 
 describe('Utils', () => {
@@ -268,6 +270,8 @@ describe('Utils', () => {
       // Base delay is 2000, jitter is +/- 25% (1500-2500)
       expect(delay1).toBeGreaterThanOrEqual(1500);
       expect(delay1).toBeLessThanOrEqual(2500);
+      expect(delay2).toBeGreaterThanOrEqual(1500);
+      expect(delay2).toBeLessThanOrEqual(2500);
 
       // Multiple calls should (usually) produce different values due to randomness
       // Note: This test could theoretically fail if both random values are exactly the same
@@ -444,6 +448,69 @@ describe('Utils', () => {
     it('should return default for undefined', () => {
       expect(parseEnvBoolean(undefined, true)).toBe(true);
       expect(parseEnvBoolean(undefined, false)).toBe(false);
+    });
+  });
+
+  describe('parseDuration', () => {
+    it.each([
+      ['3h 30m', 12600],
+      ['1d 4h', 100800],
+      ['3h20m', 12000],
+      ['1w', 604800],
+      ['1w 2d 3h 4m', 788640],
+      ['45s', 45],
+      ['2.5h', 9000],
+      ['  2h   15m  ', 8100],
+      ['1H 30M', 5400],
+    ])('should parse %s to %i seconds', (input, expected) => {
+      expect(parseDuration(input)).toBe(expected);
+    });
+
+    it('should treat a bare number as minutes', () => {
+      expect(parseDuration('90')).toBe(5400);
+    });
+
+    it('should sum repeated units', () => {
+      expect(parseDuration('1h 1h')).toBe(7200);
+    });
+
+    it.each(['', '   ', 'abc', '3x', '3h abc', 'h', '-5m'])(
+      'should throw for invalid input %s',
+      (input) => {
+        expect(() => parseDuration(input)).toThrow(/Invalid duration/);
+      }
+    );
+  });
+
+  describe('formatDuration', () => {
+    it.each([
+      [0, '0m'],
+      [30, '0m'],
+      [60, '1m'],
+      [3600, '1h'],
+      [12600, '3h 30m'],
+      [100800, '1d 4h'],
+      [604800, '1w'],
+      [788640, '1w 2d 3h 4m'],
+    ])('should format %i seconds as %s', (input, expected) => {
+      expect(formatDuration(input)).toBe(expected);
+    });
+
+    it('should not leave trailing whitespace', () => {
+      expect(formatDuration(3600)).toBe(formatDuration(3600).trim());
+    });
+
+    it.each([-1, Number.NaN, Number.POSITIVE_INFINITY])(
+      'should throw for invalid seconds %s',
+      (input) => {
+        expect(() => formatDuration(input)).toThrow(/Invalid duration in seconds/);
+      }
+    );
+
+    it('should round-trip with parseDuration', () => {
+      for (const seconds of [60, 3600, 12600, 100800, 604800, 788640]) {
+        expect(parseDuration(formatDuration(seconds))).toBe(seconds);
+      }
     });
   });
 });

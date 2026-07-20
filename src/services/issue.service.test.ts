@@ -139,47 +139,61 @@ describe('IssueService', () => {
 
   describe('update', () => {
     it('should update an issue', async () => {
-      vi.mocked(mockHttp.put).mockResolvedValueOnce(createMockResponse(null));
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
 
       await service.update('PROJECT-123', {
         fields: { summary: 'Updated summary' },
       });
 
-      expect(mockHttp.put).toHaveBeenCalledWith(
-        '/rest/api/3/issue/PROJECT-123',
+      expect(mockHttp.request).toHaveBeenCalledWith(
         expect.objectContaining({
-          fields: expect.objectContaining({
-            summary: 'Updated summary',
+          method: 'PUT',
+          url: '/rest/api/3/issue/PROJECT-123',
+          body: expect.objectContaining({
+            fields: expect.objectContaining({
+              summary: 'Updated summary',
+            }),
           }),
-        }),
-        expect.anything()
+        })
+      );
+    });
+
+    it('should forward update query params', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.update('PROJECT-123', { fields: {} }, { notifyUsers: false });
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: { notifyUsers: false },
+        })
       );
     });
   });
 
   describe('deleteIssue', () => {
     it('should delete an issue', async () => {
-      vi.mocked(mockHttp.delete).mockResolvedValueOnce(createMockResponse(null));
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
 
       await service.deleteIssue('PROJECT-123');
 
-      expect(mockHttp.delete).toHaveBeenCalledWith(
-        '/rest/api/3/issue/PROJECT-123',
-        expect.anything()
-      );
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: '/rest/api/3/issue/PROJECT-123',
+        params: {},
+      });
     });
 
     it('should delete an issue with subtasks', async () => {
-      vi.mocked(mockHttp.delete).mockResolvedValueOnce(createMockResponse(null));
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
 
       await service.deleteIssue('PROJECT-123', { deleteSubtasks: true });
 
-      expect(mockHttp.delete).toHaveBeenCalledWith(
-        '/rest/api/3/issue/PROJECT-123',
+      expect(mockHttp.request).toHaveBeenCalledWith(
         expect.objectContaining({
-          params: expect.objectContaining({
-            deleteSubtasks: 'true',
-          }),
+          method: 'DELETE',
+          url: '/rest/api/3/issue/PROJECT-123',
+          params: { deleteSubtasks: 'true' },
         })
       );
     });
@@ -225,16 +239,94 @@ describe('IssueService', () => {
         updated: '2024-01-15T10:00:00.000Z',
       };
 
-      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse(mockComment));
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(mockComment));
 
       const result = await service.addComment('PROJECT-123', { body: 'New comment' });
 
-      expect(mockHttp.post).toHaveBeenCalledWith(
-        '/rest/api/3/issue/PROJECT-123/comment',
-        expect.objectContaining({ body: 'New comment' }),
-        expect.anything()
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'POST',
+          url: '/rest/api/3/issue/PROJECT-123/comment',
+          body: expect.objectContaining({ body: 'New comment' }),
+        })
       );
       expect(result.body).toBe('New comment');
+    });
+
+    // Regression: the expand option used to be passed as a RequestOptions
+    // field via an `as never` cast, which is not part of that type at all.
+    it('should send the expand query param when adding a comment', async () => {
+      const mockComment = {
+        id: '10001',
+        self: 'https://example.atlassian.net/rest/api/3/issue/10001/comment/10001',
+        body: 'New comment',
+        created: '2024-01-15T10:00:00.000Z',
+        updated: '2024-01-15T10:00:00.000Z',
+      };
+
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(mockComment));
+
+      await service.addComment(
+        'PROJECT-123',
+        { body: 'New comment' },
+        { expand: ['renderedBody'] }
+      );
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: { expand: 'renderedBody' },
+        })
+      );
+    });
+
+    it('should get a single comment', async () => {
+      const mockComment = {
+        id: '10000',
+        self: 'https://example.atlassian.net/rest/api/3/issue/10001/comment/10000',
+        body: 'Test comment',
+        created: '2024-01-15T10:00:00.000Z',
+        updated: '2024-01-15T10:00:00.000Z',
+      };
+
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockComment));
+
+      const result = await service.getComment('PROJECT-123', '10000', { expand: ['renderedBody'] });
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/issue/PROJECT-123/comment/10000',
+        { expand: 'renderedBody' },
+        undefined
+      );
+      expect(result.id).toBe('10000');
+    });
+
+    it('should update a comment and send the expand query param', async () => {
+      const mockComment = {
+        id: '10000',
+        self: 'https://example.atlassian.net/rest/api/3/issue/10001/comment/10000',
+        body: 'Updated comment',
+        created: '2024-01-15T10:00:00.000Z',
+        updated: '2024-01-15T11:00:00.000Z',
+      };
+
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(mockComment));
+
+      const result = await service.updateComment(
+        'PROJECT-123',
+        '10000',
+        { body: 'Updated comment' },
+        { expand: ['renderedBody'] }
+      );
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'PUT',
+          url: '/rest/api/3/issue/PROJECT-123/comment/10000',
+          body: expect.objectContaining({ body: 'Updated comment' }),
+          params: { expand: 'renderedBody' },
+        })
+      );
+      expect(result.body).toBe('Updated comment');
     });
 
     it('should delete a comment', async () => {
@@ -336,16 +428,15 @@ describe('IssueService', () => {
     });
 
     it('should remove a watcher', async () => {
-      vi.mocked(mockHttp.delete).mockResolvedValueOnce(createMockResponse(null));
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
 
       await service.removeWatcher('PROJECT-123', 'user123');
 
-      expect(mockHttp.delete).toHaveBeenCalledWith(
-        '/rest/api/3/issue/PROJECT-123/watchers',
-        expect.objectContaining({
-          params: { accountId: 'user123' },
-        })
-      );
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: '/rest/api/3/issue/PROJECT-123/watchers',
+        params: { accountId: 'user123' },
+      });
     });
   });
 
@@ -403,7 +494,7 @@ describe('IssueService', () => {
         })
       );
       expect(result).toHaveLength(1);
-      expect(result[0].filename).toBe('test.txt');
+      expect(result[0]!.filename).toBe('test.txt');
     });
 
     it('should get attachment metadata', async () => {
@@ -505,7 +596,7 @@ describe('IssueService', () => {
         undefined
       );
       expect(result).toHaveLength(1);
-      expect(result[0].type.name).toBe('Blocks');
+      expect(result[0]!.type.name).toBe('Blocks');
     });
 
     it('should create an issue link', async () => {

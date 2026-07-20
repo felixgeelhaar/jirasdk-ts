@@ -120,7 +120,12 @@ export class IssueService extends BaseService {
       overrideEditableFlag: options?.overrideEditableFlag,
     });
 
-    await this.putMethodRaw(`/issue/${issueIdOrKey}`, validatedInput, { params } as never);
+    await this.http.request({
+      method: 'PUT',
+      url: this.buildPath(`/issue/${issueIdOrKey}`),
+      body: validatedInput,
+      params,
+    });
   }
 
   /**
@@ -131,7 +136,11 @@ export class IssueService extends BaseService {
       deleteSubtasks: options?.deleteSubtasks?.toString(),
     });
 
-    await this.http.delete(this.buildPath(`/issue/${issueIdOrKey}`), { params } as never);
+    await this.http.request({
+      method: 'DELETE',
+      url: this.buildPath(`/issue/${issueIdOrKey}`),
+      params,
+    });
   }
 
   // Comments
@@ -181,11 +190,12 @@ export class IssueService extends BaseService {
       expand: this.arrayToCommaSeparated(options?.expand),
     });
 
-    const response = await this.http.post(
-      this.buildPath(`/issue/${issueIdOrKey}/comment`),
-      validatedInput,
-      { params } as never
-    );
+    const response = await this.http.request({
+      method: 'POST',
+      url: this.buildPath(`/issue/${issueIdOrKey}/comment`),
+      body: validatedInput,
+      params,
+    });
     return this.validateResponse(response, CommentSchema);
   }
 
@@ -203,11 +213,12 @@ export class IssueService extends BaseService {
       expand: this.arrayToCommaSeparated(options?.expand),
     });
 
-    const response = await this.http.put(
-      this.buildPath(`/issue/${issueIdOrKey}/comment/${commentId}`),
-      validatedInput,
-      { params } as never
-    );
+    const response = await this.http.request({
+      method: 'PUT',
+      url: this.buildPath(`/issue/${issueIdOrKey}/comment/${commentId}`),
+      body: validatedInput,
+      params,
+    });
     return this.validateResponse(response, CommentSchema);
   }
 
@@ -263,9 +274,11 @@ export class IssueService extends BaseService {
    * Remove a watcher from an issue
    */
   async removeWatcher(issueIdOrKey: string, accountId: string): Promise<void> {
-    await this.http.delete(this.buildPath(`/issue/${issueIdOrKey}/watchers`), {
+    await this.http.request({
+      method: 'DELETE',
+      url: this.buildPath(`/issue/${issueIdOrKey}/watchers`),
       params: { accountId },
-    } as never);
+    });
   }
 
   // Worklogs
@@ -332,11 +345,12 @@ export class IssueService extends BaseService {
       expand: this.arrayToCommaSeparated(options?.expand),
     });
 
-    const response = await this.http.post(
-      this.buildPath(`/issue/${issueIdOrKey}/worklog`),
-      validatedInput,
-      { params } as never
-    );
+    const response = await this.http.request({
+      method: 'POST',
+      url: this.buildPath(`/issue/${issueIdOrKey}/worklog`),
+      body: validatedInput,
+      params,
+    });
     return this.validateResponse(response, WorklogSchema);
   }
 
@@ -362,11 +376,12 @@ export class IssueService extends BaseService {
       expand: this.arrayToCommaSeparated(options?.expand),
     });
 
-    const response = await this.http.put(
-      this.buildPath(`/issue/${issueIdOrKey}/worklog/${worklogId}`),
-      validatedInput,
-      { params } as never
-    );
+    const response = await this.http.request({
+      method: 'PUT',
+      url: this.buildPath(`/issue/${issueIdOrKey}/worklog/${worklogId}`),
+      body: validatedInput,
+      params,
+    });
     return this.validateResponse(response, WorklogSchema);
   }
 
@@ -390,9 +405,11 @@ export class IssueService extends BaseService {
       increaseBy: options?.increaseBy,
     });
 
-    await this.http.delete(this.buildPath(`/issue/${issueIdOrKey}/worklog/${worklogId}`), {
+    await this.http.request({
+      method: 'DELETE',
+      url: this.buildPath(`/issue/${issueIdOrKey}/worklog/${worklogId}`),
       params,
-    } as never);
+    });
   }
 
   // Votes

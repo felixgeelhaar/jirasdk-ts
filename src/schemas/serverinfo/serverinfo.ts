@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+// Time tracking settings are owned by the timetracking domain, which is where
+// they are also written. Imported rather than redefined so the two stay in sync.
+import { TimeTrackingConfigurationSchema } from '../timetracking/index.js';
+
 /**
  * A single health check result reported by the Jira instance
  */
@@ -32,20 +36,6 @@ export const ServerInfoSchema = z
   .loose();
 
 export type ServerInfo = z.infer<typeof ServerInfoSchema>;
-
-/**
- * Time tracking settings of the Jira instance
- */
-export const TimeTrackingConfigurationSchema = z
-  .object({
-    workingHoursPerDay: z.number(),
-    workingDaysPerWeek: z.number(),
-    timeFormat: z.string(),
-    defaultUnit: z.string(),
-  })
-  .loose();
-
-export type TimeTrackingConfiguration = z.infer<typeof TimeTrackingConfigurationSchema>;
 
 /**
  * Global configuration of the Jira instance

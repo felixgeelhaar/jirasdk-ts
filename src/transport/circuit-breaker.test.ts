@@ -223,6 +223,7 @@ describe('createCircuitBreakerMiddleware', () => {
     const context = createContext();
     const mockResponse: HttpResponse = {
       status: 200,
+      statusText: 'OK',
       headers: new Headers(),
       data: { success: true },
       request: context.request,
@@ -241,6 +242,7 @@ describe('createCircuitBreakerMiddleware', () => {
     const context = createContext();
     const mockResponse: HttpResponse = {
       status: 200,
+      statusText: 'OK',
       headers: new Headers(),
       data: { success: true },
       request: context.request,

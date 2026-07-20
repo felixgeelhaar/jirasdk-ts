@@ -266,6 +266,11 @@ export class SearchService extends BaseService {
 
   /**
    * Count issues matching a JQL query (more efficient than fetching all)
+   *
+   * @deprecated The Enhanced JQL Search API does not return a total count.
+   * This still uses the legacy `/rest/api/3/search` endpoint; use
+   * `POST /rest/api/3/search/approximate-count` semantics when Atlassian
+   * retires it.
    */
   async count(jql: string): Promise<number> {
     const result = await this.search({
@@ -274,5 +279,118 @@ export class SearchService extends BaseService {
       fields: [],
     });
     return result.total;
+  }
+
+  // Enhanced JQL Search API
+
+  /**
+   * Execute a JQL search using the Enhanced JQL Search API
+   *
+   * `POST /rest/api/3/search/jql`
+   *
+   * Differences from the legacy {@link SearchService.search}:
+   * - token pagination (`nextPageToken`) instead of `startAt`
+   * - no `total` count in the response
+   * - `maxResults` up to 5000 (vs 100)
+   * - **`fields` defaults to the issue ID only**, not `*navigable`. Pass
+   *   `['*all']`, `['*navigable']` or an explicit list, otherwise the returned
+   *   issues will have no `fields` object at all.
+   *
+   * @param options - Enhanced search options
+   * @returns A page of issues plus the token for the next page (if any)
+   *
+   * @example
+   * ```typescript
+   * let page = await client.search.searchJql({
+   *   jql: 'project = PROJECT',
+   *   fields: ['summary', 'status'],
+   *   maxResults: 1000,
+   * });
+   *
+   * while (page.nextPageToken) {
+   *   page = await client.search.searchJql({
+   *     jql: 'project = PROJECT',
+   *     fields: ['summary', 'status'],
+   *     maxResults: 1000,
+   *     nextPageToken: page.nextPageToken,
+   *   });
+   * }
+   * ```
+   */
+  async searchJql(options: SearchJqlOptions): Promise<SearchJqlResult> {
+    const body = {
+      jql: options.jql,
+      ...(options.maxResults !== undefined && { maxResults: options.maxResults }),
+      ...(options.nextPageToken !== undefined && { nextPageToken: options.nextPageToken }),
+      ...(options.fields !== undefined && { fields: options.fields }),
+      ...(options.expand !== undefined && { expand: options.expand }),
+      ...(options.fieldsByKeys !== undefined && { fieldsByKeys: options.fieldsByKeys }),
+      ...(options.properties !== undefined && { properties: options.properties }),
+      ...(options.validateQuery !== undefined && { validateQuery: options.validateQuery }),
+    };
+
+    return this.postMethod('/search/jql', SearchJqlResultSchema, body);
+  }
+
+  /**
+   * Async iterator over every issue matching a JQL query, using the Enhanced
+   * JQL Search API and its token-based pagination.
+   *
+   * Defaults to a page size of 100 (matching the Go SDK's iterator). Remember
+   * that `fields` defaults to the issue ID only — pass the fields you need.
+   *
+   * @param jql - JQL query string
+   * @param options - Enhanced search options minus `jql` and `nextPageToken`
+   * @returns An async generator of issues
+   *
+   * @example
+   * ```typescript
+   * for await (const issue of client.search.iterateJql('project = PROJECT', {
+   *   fields: ['summary'],
+   * })) {
+   *   console.log(issue.key, issue.fields?.summary);
+   * }
+   * ```
+   */
+  async *iterateJql(
+    jql: string,
+    options?: Omit<SearchJqlOptions, 'jql' | 'nextPageToken'>
+  ): AsyncGenerator<SearchJqlIssue, void, undefined> {
+    let nextPageToken: string | undefined;
+
+    do {
+      const result: SearchJqlResult = await this.searchJql({
+        ...options,
+        jql,
+        maxResults: options?.maxResults ?? DEFAULT_JQL_PAGE_SIZE,
+        ...(nextPageToken !== undefined && { nextPageToken }),
+      });
+
+      for (const issue of result.issues) {
+        yield issue;
+      }
+
+      // Guard against a server that keeps returning a token for an empty page.
+      nextPageToken = result.issues.length > 0 ? result.nextPageToken : undefined;
+    } while (nextPageToken !== undefined && nextPageToken !== '');
+  }
+
+  /**
+   * Collect every issue matching a JQL query into an array, using the Enhanced
+   * JQL Search API. Prefer {@link SearchService.iterateJql} for large results.
+   *
+   * @param jql - JQL query string
+   * @param options - Enhanced search options minus `jql` and `nextPageToken`
+   * @returns All matching issues
+   */
+  async allJql(
+    jql: string,
+    options?: Omit<SearchJqlOptions, 'jql' | 'nextPageToken'>
+  ): Promise<SearchJqlIssue[]> {
+    const issues: SearchJqlIssue[] = [];
+    for await (const issue of this.iterateJql(jql, options)) {
+      issues.push(issue);
+    }
+    return issues;
   }
 }

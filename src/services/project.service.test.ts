@@ -180,27 +180,27 @@ describe('ProjectService', () => {
 
   describe('deleteProject', () => {
     it('should delete a project', async () => {
-      vi.mocked(mockHttp.delete).mockResolvedValueOnce(createMockResponse(null));
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
 
       await service.deleteProject('PROJECT');
 
-      expect(mockHttp.delete).toHaveBeenCalledWith(
-        '/rest/api/3/project/PROJECT',
-        expect.anything()
-      );
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: '/rest/api/3/project/PROJECT',
+        params: {},
+      });
     });
 
     it('should delete a project with undo enabled', async () => {
-      vi.mocked(mockHttp.delete).mockResolvedValueOnce(createMockResponse(null));
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
 
       await service.deleteProject('PROJECT', { enableUndo: true });
 
-      expect(mockHttp.delete).toHaveBeenCalledWith(
-        '/rest/api/3/project/PROJECT',
+      expect(mockHttp.request).toHaveBeenCalledWith(
         expect.objectContaining({
-          params: expect.objectContaining({
-            enableUndo: true,
-          }),
+          method: 'DELETE',
+          url: '/rest/api/3/project/PROJECT',
+          params: { enableUndo: true },
         })
       );
     });
