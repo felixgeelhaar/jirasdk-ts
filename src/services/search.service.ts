@@ -248,7 +248,11 @@ export class SearchService extends BaseService {
       }
 
       startAt += result.issues.length;
-      hasMore = startAt < result.total;
+      // Stop on an empty page even when `total` says there is more. Jira can
+      // return fewer issues than `total` implies (permission filtering, or
+      // issues deleted mid-scan); without this guard `startAt` never advances
+      // and the generator spins forever, hanging the caller.
+      hasMore = result.issues.length > 0 && startAt < result.total;
     }
   }
 

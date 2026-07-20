@@ -26,7 +26,7 @@ export type ProjectRef = z.infer<typeof ProjectRefSchema>;
  * Full Project Schema
  */
 export const ProjectSchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
   id: z.string(),
   key: z.string(),
   name: z.string(),

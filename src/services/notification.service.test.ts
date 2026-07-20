@@ -222,22 +222,55 @@ describe('NotificationService', () => {
   });
 
   describe('addNotification', () => {
-    it('should add a notification with the event id as a query param', async () => {
-      vi.mocked(mockHttp.post).mockResolvedValueOnce(
-        createMockResponse({ id: 12345, type: 'Group', parameter: 'jira-administrators' })
-      );
+    it('should PUT a nested notificationSchemeEvents body', async () => {
+      vi.mocked(mockHttp.put).mockResolvedValueOnce(createMockResponse(undefined));
 
-      const notification = await service.addNotification(10000, 1, {
+      await service.addNotification(10000, 1, {
         type: 'Group',
         parameter: 'jira-administrators',
       });
 
-      expect(mockHttp.post).toHaveBeenCalledWith(
+      // The Go SDK POSTs a flat body with an eventTypeId query param; that
+      // operation does not exist and returns 405. The path defines only PUT,
+      // taking AddNotificationsDetails.
+      expect(mockHttp.put).toHaveBeenCalledWith(
         '/rest/api/3/notificationscheme/10000/notification',
-        { type: 'Group', parameter: 'jira-administrators' },
-        { params: { eventTypeId: 1 } }
+        {
+          notificationSchemeEvents: [
+            {
+              event: { id: '1' },
+              notifications: [{ type: 'Group', parameter: 'jira-administrators' }],
+            },
+          ],
+        },
+        undefined
       );
-      expect(notification.id).toBe(12345);
+      expect(mockHttp.post).not.toHaveBeenCalled();
+    });
+
+    it('should accept several notifications for one event', async () => {
+      vi.mocked(mockHttp.put).mockResolvedValueOnce(createMockResponse(undefined));
+
+      await service.addNotification(10000, 1, [
+        { type: 'Group', parameter: 'jira-administrators' },
+        { type: 'CurrentAssignee' },
+      ]);
+
+      expect(mockHttp.put).toHaveBeenCalledWith(
+        '/rest/api/3/notificationscheme/10000/notification',
+        {
+          notificationSchemeEvents: [
+            {
+              event: { id: '1' },
+              notifications: [
+                { type: 'Group', parameter: 'jira-administrators' },
+                { type: 'CurrentAssignee' },
+              ],
+            },
+          ],
+        },
+        undefined
+      );
     });
   });
 

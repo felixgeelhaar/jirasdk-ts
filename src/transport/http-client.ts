@@ -7,6 +7,7 @@ import type {
   Middleware,
   MiddlewareContext,
   MiddlewareNext,
+  QueryParamValue,
 } from './types.js';
 import type { AuthProvider } from '../auth/types.js';
 import type { Logger } from '../logging/types.js';
@@ -110,7 +111,7 @@ export class HttpClient {
    */
   async get<T = unknown>(
     path: string,
-    params?: Record<string, string | number | boolean | string[] | undefined>,
+    params?: Record<string, QueryParamValue | undefined>,
     options?: RequestOptions
   ): Promise<HttpResponse<T>> {
     return this.request<T>({

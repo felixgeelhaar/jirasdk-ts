@@ -49,7 +49,10 @@ describe('UserSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should reject user without self URL', () => {
+  it('should accept a user without a self URL', () => {
+    // The API reference marks no property of User as required, and Jira omits
+    // `self` on partial payloads. Requiring it made valid responses throw
+    // ResponseValidationError, so `self` is optional on all read schemas.
     const user = {
       accountId: '123456',
       displayName: 'John Doe',
@@ -57,6 +60,17 @@ describe('UserSchema', () => {
     };
 
     const result = UserSchema.safeParse(user);
+    expect(result.success).toBe(true);
+  });
+
+  it('should still reject a malformed self URL when one is present', () => {
+    const result = UserSchema.safeParse({
+      self: 'not-a-url',
+      accountId: '123456',
+      displayName: 'John Doe',
+      active: true,
+    });
+
     expect(result.success).toBe(false);
   });
 });

@@ -67,18 +67,24 @@ export class ProjectService extends BaseService {
    * Get all projects (paginated)
    */
   async list(options?: GetProjectsOptions): Promise<ProjectSearchResult> {
+    // Jira is not consistent about how it wants list parameters serialized, and
+    // the API reference states the expected form per parameter:
+    //   id, keys, status  -> repeated keys ("id=10000&id=10001")
+    //   expand, properties -> a single comma-separated value
+    // Passing an array here produces repeated keys; passing a joined string
+    // produces one comma-separated value.
     const params = this.buildParams({
       startAt: options?.startAt,
       maxResults: options?.maxResults,
       orderBy: options?.orderBy,
-      id: options?.id?.join(','),
-      keys: options?.keys?.join(','),
+      id: options?.id,
+      keys: options?.keys,
       query: options?.query,
       typeKey: options?.typeKey,
       categoryId: options?.categoryId,
       action: options?.action,
       expand: options?.expand,
-      status: options?.status?.join(','),
+      status: options?.status,
       properties: options?.properties?.join(','),
       propertyQuery: options?.propertyQuery,
     });

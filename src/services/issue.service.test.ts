@@ -649,6 +649,41 @@ describe('IssueService', () => {
   });
 
   describe('issue links', () => {
+    it('should parse a response containing only the requested field', async () => {
+      // Regression: getIssueLinks asks for `fields: ['issuelinks']`, so Jira
+      // returns a payload with no summary/issuetype/project/status. Those were
+      // required by IssueFieldsSchema, which made this method throw
+      // ResponseValidationError on every call. The existing test below missed
+      // it because it spreads a *full* mock issue, which a narrowed request
+      // never returns.
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(
+        createMockResponse({
+          id: '10001',
+          key: 'PROJECT-123',
+          self: 'https://example.atlassian.net/rest/api/3/issue/10001',
+          fields: {
+            issuelinks: [
+              {
+                id: '10000',
+                self: 'https://example.atlassian.net/rest/api/3/issueLink/10000',
+                type: {
+                  id: '10001',
+                  name: 'Blocks',
+                  inward: 'is blocked by',
+                  outward: 'blocks',
+                },
+              },
+            ],
+          },
+        })
+      );
+
+      const result = await service.getIssueLinks('PROJECT-123');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]!.type.name).toBe('Blocks');
+    });
+
     it('should get issue links', async () => {
       const mockIssueWithLinks = {
         ...createMockIssue('PROJECT-123'),

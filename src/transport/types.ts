@@ -12,6 +12,16 @@ export type { Logger };
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
 
 /**
+ * A value that may appear in a query string.
+ *
+ * Arrays are serialized as repeated keys (`id=1&id=2`), which is what Jira
+ * expects for parameters it documents as "ampersand-separated". Parameters it
+ * documents as "comma-separated" should be joined by the caller into a single
+ * string instead.
+ */
+export type QueryParamValue = string | number | boolean | string[] | number[];
+
+/**
  * HTTP request configuration
  */
 export interface HttpRequest {
@@ -38,7 +48,7 @@ export interface HttpRequest {
   /**
    * Query parameters
    */
-  params?: Record<string, string | number | boolean | string[] | undefined> | undefined;
+  params?: Record<string, QueryParamValue | undefined> | undefined;
 
   /**
    * Request timeout in milliseconds
@@ -210,7 +220,7 @@ export interface RequestOptions {
    * POST, PUT and DELETE endpoints too (`expand`, `notifyUsers`,
    * `replaceWith`, and so on).
    */
-  params?: Record<string, string | number | boolean | string[] | undefined> | undefined;
+  params?: Record<string, QueryParamValue | undefined> | undefined;
 
   /**
    * Custom metadata passed to middleware

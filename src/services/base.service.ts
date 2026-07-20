@@ -1,5 +1,10 @@
 import type { z } from 'zod';
-import type { HttpClient, HttpResponse, RequestOptions } from '../transport/index.js';
+import type {
+  HttpClient,
+  HttpResponse,
+  QueryParamValue,
+  RequestOptions,
+} from '../transport/index.js';
 import { ResponseValidationError } from '../errors/index.js';
 
 /**
@@ -30,7 +35,7 @@ export abstract class BaseService {
   protected async getMethod<T>(
     path: string,
     schema: z.ZodType<T>,
-    params?: Record<string, string | number | boolean | string[] | undefined>,
+    params?: Record<string, QueryParamValue | undefined>,
     options?: RequestOptions
   ): Promise<T> {
     const response = await this.http.get(this.buildPath(path), params, options);
@@ -42,7 +47,7 @@ export abstract class BaseService {
    */
   protected async getMethodRaw<T = unknown>(
     path: string,
-    params?: Record<string, string | number | boolean | string[] | undefined>,
+    params?: Record<string, QueryParamValue | undefined>,
     options?: RequestOptions
   ): Promise<HttpResponse<T>> {
     return this.http.get<T>(this.buildPath(path), params, options);
@@ -144,9 +149,9 @@ export abstract class BaseService {
    * Filters out undefined values
    */
   protected buildParams(
-    params: Record<string, string | number | boolean | string[] | undefined>
-  ): Record<string, string | number | boolean | string[]> {
-    const result: Record<string, string | number | boolean | string[]> = {};
+    params: Record<string, QueryParamValue | undefined>
+  ): Record<string, QueryParamValue> {
+    const result: Record<string, QueryParamValue> = {};
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
         result[key] = value;

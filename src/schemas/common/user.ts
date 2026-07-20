@@ -23,7 +23,7 @@ export type AccountType = z.infer<typeof AccountTypeSchema>;
  * Jira user representation
  */
 export const UserSchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
   accountId: z.string(),
   accountType: AccountTypeSchema.optional(),
   emailAddress: z.email().optional(),

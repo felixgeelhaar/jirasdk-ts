@@ -178,6 +178,24 @@ describe('SearchService', () => {
   });
 
   describe('iterate', () => {
+    it('should stop on an empty page even when total claims more remain', async () => {
+      // Regression: `hasMore` was `startAt < total` alone. A page with zero
+      // issues does not advance `startAt`, so the generator spun forever and
+      // hung the caller. Jira can return fewer issues than `total` implies
+      // when permission filtering or concurrent deletion is in play.
+      vi.mocked(mockHttp.post).mockResolvedValue(
+        createMockResponse({ startAt: 0, maxResults: 50, total: 500, issues: [] })
+      );
+
+      const collected = [];
+      for await (const issue of service.iterate('project = PROJ')) {
+        collected.push(issue);
+      }
+
+      expect(collected).toHaveLength(0);
+      expect(mockHttp.post).toHaveBeenCalledTimes(1);
+    });
+
     it('should iterate through all pages', async () => {
       const page1 = {
         startAt: 0,

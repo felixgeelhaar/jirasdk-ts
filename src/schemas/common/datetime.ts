@@ -24,9 +24,15 @@ export const JiraDateSchema = z
 export type JiraDate = z.infer<typeof JiraDateSchema>;
 
 /**
- * Optional datetime that may be null
+ * A datetime that may be null or absent entirely.
+ *
+ * Both are needed. Jira returns `null` for an unset date (an unresolved issue
+ * has `"resolutiondate": null`), and omits the key altogether when the caller
+ * narrows `fields`. This was previously only `.nullable()`, so any response
+ * that omitted a date key failed validation — which is every narrowed-`fields`
+ * request, across the 16 places this schema is used.
  */
-export const OptionalJiraDateTimeSchema = z.string().nullable();
+export const OptionalJiraDateTimeSchema = z.string().nullable().optional();
 
 export type OptionalJiraDateTime = z.infer<typeof OptionalJiraDateTimeSchema>;
 

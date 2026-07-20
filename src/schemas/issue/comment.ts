@@ -16,7 +16,7 @@ export type CommentVisibility = z.infer<typeof CommentVisibilitySchema>;
  * Issue Comment
  */
 export const CommentSchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
   id: z.string(),
   author: UserRefSchema.optional(),
   body: AdfOrStringSchema,

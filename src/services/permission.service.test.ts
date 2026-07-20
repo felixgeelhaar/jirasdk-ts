@@ -165,14 +165,14 @@ describe('PermissionService', () => {
       expect(schemes[0]?.name).toBe('Custom Scheme');
     });
 
-    it('should pass expand values as a repeated query param', async () => {
+    it('should pass expand values as a single comma-separated query param', async () => {
       vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ permissionSchemes: [] }));
 
       await service.listPermissionSchemes({ expand: ['permissions', 'user'] });
 
       expect(mockHttp.get).toHaveBeenCalledWith(
         '/rest/api/3/permissionscheme',
-        { expand: ['permissions', 'user'] },
+        { expand: 'permissions,user' },
         undefined
       );
     });
@@ -186,7 +186,7 @@ describe('PermissionService', () => {
 
       expect(mockHttp.get).toHaveBeenCalledWith(
         '/rest/api/3/permissionscheme/10000',
-        { expand: ['permissions'] },
+        { expand: 'permissions' },
         undefined
       );
       expect(scheme.id).toBe(10000);

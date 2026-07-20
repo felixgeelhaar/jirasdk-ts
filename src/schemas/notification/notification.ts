@@ -166,6 +166,29 @@ export const AddNotificationInputSchema = z.object({
 export type AddNotificationInput = z.infer<typeof AddNotificationInputSchema>;
 
 /**
+ * Request body for adding notifications to a notification scheme
+ * (`AddNotificationsDetails`).
+ *
+ * The endpoint is `PUT`, takes a nested `notificationSchemeEvents` array, and
+ * returns 204. The Go SDK issues a `POST` with an `eventTypeId` query
+ * parameter and a flat body, which the API answers with 405.
+ */
+export const AddNotificationsRequestSchema = z.object({
+  notificationSchemeEvents: z
+    .array(
+      z.object({
+        event: z.object({ id: z.string().min(1) }),
+        notifications: z.array(AddNotificationInputSchema).min(1, {
+          error: 'at least one notification is required',
+        }),
+      })
+    )
+    .min(1, { error: 'at least one notification scheme event is required' }),
+});
+
+export type AddNotificationsRequest = z.infer<typeof AddNotificationsRequestSchema>;
+
+/**
  * Recipients of an issue notification
  */
 export const NotificationTargetSchema = z.object({

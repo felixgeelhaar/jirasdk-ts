@@ -5,7 +5,7 @@ import { AvatarUrlsSchema } from '../common/index.js';
  * Project Category
  */
 export const ProjectCategorySchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),

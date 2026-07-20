@@ -21,7 +21,7 @@ export type WorklogVisibility = z.infer<typeof WorklogVisibilitySchema>;
  * Issue Worklog
  */
 export const WorklogSchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
   id: z.string(),
   author: UserRefSchema.optional(),
   updateAuthor: UserRefSchema.optional(),

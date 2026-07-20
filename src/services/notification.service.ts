@@ -1,13 +1,11 @@
 import { BaseService } from './base.service.js';
 import {
-  NotificationSchema,
   NotificationSchemeSchema,
   NotificationSchemePageSchema,
   CreateNotificationSchemeInputSchema,
   UpdateNotificationSchemeInputSchema,
-  AddNotificationInputSchema,
+  AddNotificationsRequestSchema,
   SendNotificationInputSchema,
-  type Notification,
   type NotificationScheme,
   type NotificationSchemePage,
   type ListNotificationSchemesOptions,
@@ -164,29 +162,33 @@ export class NotificationService extends BaseService {
   }
 
   /**
-   * Add a notification recipient to a notification scheme event
+   * Add one or more notification recipients to a notification scheme event
    *
-   * `POST /rest/api/3/notificationscheme/{schemeId}/notification?eventTypeId={eventId}`
+   * `PUT /rest/api/3/notificationscheme/{schemeId}/notification`
+   *
+   * Deviates from the Go SDK, which issues
+   * `POST .../notification?eventTypeId={eventId}` with a flat body. That
+   * operation does not exist — the path defines only `PUT`, taking a nested
+   * `notificationSchemeEvents` array and no query parameters — so the Go call
+   * returns 405.
+   *
+   * The endpoint returns 204, so there is no created notification to return.
    *
    * @param schemeId - ID of the notification scheme
-   * @param eventId - ID of the event type the notification is attached to
-   * @param input - Notification type and parameter
-   * @returns The created notification
+   * @param eventId - ID of the event type the notifications attach to
+   * @param input - A notification, or several, to add to that event
    */
   async addNotification(
     schemeId: number,
     eventId: number,
-    input: AddNotificationInput
-  ): Promise<Notification> {
-    const body = AddNotificationInputSchema.parse(input);
+    input: AddNotificationInput | AddNotificationInput[]
+  ): Promise<void> {
+    const notifications = Array.isArray(input) ? input : [input];
+    const body = AddNotificationsRequestSchema.parse({
+      notificationSchemeEvents: [{ event: { id: String(eventId) }, notifications }],
+    });
 
-    const response = await this.http.post(
-      this.buildPath(`/notificationscheme/${String(schemeId)}/notification`),
-      body,
-      { params: { eventTypeId: eventId } }
-    );
-
-    return this.validateResponse(response, NotificationSchema);
+    await this.putMethodRaw(`/notificationscheme/${String(schemeId)}/notification`, body);
   }
 
   /**

@@ -5,7 +5,7 @@ import { UserRefSchema, OptionalJiraDateTimeSchema } from '../common/index.js';
  * Issue Attachment
  */
 export const AttachmentSchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
   id: z.string(),
   filename: z.string(),
   author: UserRefSchema.optional(),
@@ -23,7 +23,7 @@ export type Attachment = z.infer<typeof AttachmentSchema>;
  */
 export const AttachmentMetadataSchema = z.object({
   id: z.number(),
-  self: z.url(),
+  self: z.url().optional(),
   filename: z.string(),
   author: UserRefSchema,
   created: OptionalJiraDateTimeSchema,

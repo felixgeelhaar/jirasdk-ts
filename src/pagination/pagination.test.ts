@@ -131,12 +131,11 @@ describe('paginate', () => {
   });
 
   it('guards against a non-advancing page', async () => {
-    const fetchPage = vi.fn(
-      (startAt: number): Promise<Page<number>> =>
-        Promise.resolve({
-          items: [1],
-          pageInfo: { startAt, maxResults: 0, total: 100 },
-        })
+    const fetchPage = vi.fn((startAt: number): Promise<Page<number>> =>
+      Promise.resolve({
+        items: [1],
+        pageInfo: { startAt, maxResults: 0, total: 100 },
+      })
     );
 
     await expect(collect(paginate(fetchPage))).resolves.toEqual([1]);
@@ -186,8 +185,8 @@ describe('paginateByToken', () => {
   });
 
   it('stops on an empty page even when a token is returned', async () => {
-    const fetchPage = vi.fn(
-      (): Promise<TokenPage<string>> => Promise.resolve({ items: [], nextPageToken: 'x' })
+    const fetchPage = vi.fn((): Promise<TokenPage<string>> =>
+      Promise.resolve({ items: [], nextPageToken: 'x' })
     );
 
     await expect(collect(paginateByToken(fetchPage))).resolves.toEqual([]);
@@ -195,8 +194,8 @@ describe('paginateByToken', () => {
   });
 
   it('guards against a repeated token', async () => {
-    const fetchPage = vi.fn(
-      (): Promise<TokenPage<string>> => Promise.resolve({ items: ['a'], nextPageToken: 'same' })
+    const fetchPage = vi.fn((): Promise<TokenPage<string>> =>
+      Promise.resolve({ items: ['a'], nextPageToken: 'same' })
     );
 
     await expect(collect(paginateByToken(fetchPage))).resolves.toEqual(['a', 'a']);

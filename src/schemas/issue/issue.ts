@@ -39,20 +39,30 @@ export const IssueRefSchema = z.object({
 export type IssueRef = z.infer<typeof IssueRefSchema>;
 
 /**
- * Issue fields schema
- * Uses passthrough() to allow custom fields
+ * Issue fields schema. Loose, to allow custom fields through.
+ *
+ * Every field is optional, including the ones an issue always has in a full
+ * response. That is deliberate: Jira only returns the fields you asked for. A
+ * request narrowing `fields` — `get('PROJ-1', { fields: ['issuelinks'] })`, or
+ * the enhanced search API, which defaults to id-only — returns a payload with
+ * no `summary`, `issuetype`, `project` or `status`. Requiring them here made
+ * every such call throw `ResponseValidationError` against a perfectly valid
+ * response.
+ *
+ * The practical consequence is that reads go through optional chaining
+ * (`issue.fields?.status?.name`), which is the convention throughout this SDK.
  */
 export const IssueFieldsSchema = z
   .object({
-    // Core fields
-    summary: z.string(),
+    // Core fields. Present in a full response, absent when `fields` is narrowed.
+    summary: z.string().optional(),
     description: AdfOrStringSchema.nullable().optional(),
     environment: AdfOrStringSchema.nullable().optional(),
 
     // Type & Status
-    issuetype: IssueTypeSchema,
-    project: IssueProjectSchema,
-    status: IssueStatusSchema,
+    issuetype: IssueTypeSchema.optional(),
+    project: IssueProjectSchema.optional(),
+    status: IssueStatusSchema.optional(),
     resolution: IssueResolutionSchema.nullable().optional(),
     priority: IssuePrioritySchema.nullable().optional(),
 
@@ -93,14 +103,14 @@ export const IssueFieldsSchema = z
     // Votes & Watches
     votes: z
       .object({
-        self: z.url(),
+        self: z.url().optional(),
         votes: z.number(),
         hasVoted: z.boolean(),
       })
       .optional(),
     watches: z
       .object({
-        self: z.url(),
+        self: z.url().optional(),
         watchCount: z.number(),
         isWatching: z.boolean(),
       })
@@ -132,7 +142,7 @@ export type IssueFields = z.infer<typeof IssueFieldsSchema>;
 export const IssueSchema = z.object({
   expand: z.string().optional(),
   id: z.string(),
-  self: z.url(),
+  self: z.url().optional(),
   key: z.string(),
   fields: IssueFieldsSchema,
   renderedFields: z.record(z.string(), z.unknown()).optional(),
@@ -221,7 +231,7 @@ export type UpdateIssueInput = z.infer<typeof UpdateIssueInputSchema>;
 export const CreateIssueResponseSchema = z.object({
   id: z.string(),
   key: z.string(),
-  self: z.url(),
+  self: z.url().optional(),
   transition: z
     .object({
       status: z.number(),

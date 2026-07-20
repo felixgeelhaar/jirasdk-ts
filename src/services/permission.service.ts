@@ -82,7 +82,10 @@ export class PermissionService extends BaseService {
    */
   async listPermissionSchemes(options?: ListPermissionSchemesOptions): Promise<PermissionScheme[]> {
     const params = this.buildParams({
-      expand: options?.expand,
+      // The API reference documents expand as a comma-separated list, not
+      // repeated keys - passing the array would emit expand=a&expand=b and all
+      // but one value would be dropped.
+      expand: this.arrayToCommaSeparated(options?.expand),
     });
 
     const result = await this.getMethod(
@@ -107,7 +110,8 @@ export class PermissionService extends BaseService {
     options?: GetPermissionSchemeOptions
   ): Promise<PermissionScheme> {
     const params = this.buildParams({
-      expand: options?.expand,
+      // Comma-separated, not repeated keys - see listPermissionSchemes.
+      expand: this.arrayToCommaSeparated(options?.expand),
     });
 
     return this.getMethod(`/permissionscheme/${String(schemeId)}`, PermissionSchemeSchema, params);

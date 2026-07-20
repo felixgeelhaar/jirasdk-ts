@@ -4,7 +4,7 @@ import { z } from 'zod';
  * Basic self-referencing link
  */
 export const SelfLinkSchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
 });
 
 export type SelfLink = z.infer<typeof SelfLinkSchema>;
@@ -13,7 +13,7 @@ export type SelfLink = z.infer<typeof SelfLinkSchema>;
  * Link with ID
  */
 export const IdLinkSchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
   id: z.string(),
 });
 
@@ -23,7 +23,7 @@ export type IdLink = z.infer<typeof IdLinkSchema>;
  * Named link (common for components, versions, etc.)
  */
 export const NamedLinkSchema = z.object({
-  self: z.url(),
+  self: z.url().optional(),
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
