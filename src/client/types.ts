@@ -1,6 +1,6 @@
 import type { AuthProvider } from '../auth/index.js';
 import type { Logger } from '../logging/index.js';
-import type { Middleware } from '../transport/index.js';
+import type { CircuitBreaker, Middleware } from '../transport/index.js';
 
 /**
  * Jira client configuration
@@ -55,6 +55,25 @@ export interface JiraClientConfig {
    * Enable request logging (default: false)
    */
   debug?: boolean;
+
+  /**
+   * Allow plain-HTTP hosts.
+   *
+   * The transport rejects non-HTTPS hosts when `NODE_ENV=production` and warns
+   * otherwise. Set this to opt out — intended for local development against a
+   * proxy or a self-hosted instance without TLS.
+   *
+   * @default false
+   */
+  allowInsecureHttp?: boolean;
+
+  /**
+   * Circuit breaker instance attached by {@link withResilience}.
+   *
+   * Set by the resilience option rather than by hand; read it back from
+   * `client.circuitBreaker` to monitor breaker state.
+   */
+  circuitBreaker?: CircuitBreaker;
 }
 
 /**

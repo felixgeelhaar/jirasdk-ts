@@ -9,3 +9,6 @@ export * from './middleware.js';
 
 // Circuit breaker for resilience
 export * from './circuit-breaker.js';
+
+// Rate-limit header parsing and observation
+export * from './rate-limit-headers.js';

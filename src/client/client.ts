@@ -4,11 +4,13 @@ import {
   createLoggingMiddleware,
   createRetryMiddleware,
   createUserAgentMiddleware,
+  type CircuitBreaker,
   type HttpClient,
   type Middleware,
 } from '../transport/index.js';
 import type { Logger } from '../logging/index.js';
 import { ConfigValidationError } from '../errors/index.js';
+import { SDK_VERSION } from '../version.js';
 import type { JiraClientConfig, JiraClientOption } from './types.js';
 
 // Services (will be implemented)
@@ -16,11 +18,6 @@ import { IssueService } from '../services/issue.service.js';
 import { ProjectService } from '../services/project.service.js';
 import { SearchService } from '../services/search.service.js';
 import { UserService } from '../services/user.service.js';
-
-/**
- * SDK version for user agent
- */
-const SDK_VERSION = '0.1.0';
 
 /**
  * Configuration schema for validation
@@ -32,6 +29,7 @@ const ConfigSchema = z.object({
   retryEnabled: z.boolean().default(true),
   maxRetries: z.number().int().min(0).max(10).default(3),
   debug: z.boolean().default(false),
+  allowInsecureHttp: z.boolean().default(false),
 });
 
 /**
@@ -64,7 +62,13 @@ export class JiraClient {
   private readonly config: Required<
     Pick<
       JiraClientConfig,
-      'host' | 'apiVersion' | 'timeout' | 'retryEnabled' | 'maxRetries' | 'debug'
+      | 'host'
+      | 'apiVersion'
+      | 'timeout'
+      | 'retryEnabled'
+      | 'maxRetries'
+      | 'debug'
+      | 'allowInsecureHttp'
     >
   > &
     JiraClientConfig;
@@ -136,8 +140,19 @@ export class JiraClient {
       auth: this.config.auth,
       timeout: this.config.timeout,
       middleware,
+      allowInsecureHttp: this.config.allowInsecureHttp,
       ...(this.config.logger !== undefined && { logger: this.config.logger }),
     });
+  }
+
+  /**
+   * Circuit breaker attached by {@link withResilience}, for monitoring.
+   *
+   * Returns `undefined` unless the client was constructed with the resilience
+   * option and the breaker is enabled.
+   */
+  get circuitBreaker(): CircuitBreaker | undefined {
+    return this.config.circuitBreaker;
   }
 
   /**

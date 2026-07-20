@@ -9,6 +9,7 @@ import {
   type RateLimitMiddlewareConfig,
   type CircuitBreakerConfig,
 } from '../transport/index.js';
+import type { JiraClientOption } from './types.js';
 
 /**
  * Resilience configuration for the Jira client
@@ -151,32 +152,41 @@ export function createResilienceMiddleware(
 }
 
 /**
- * Create a Jira client option that adds resilience middleware
+ * Create a Jira client option that adds resilience middleware.
+ *
+ * The resilience stack supplies its own retry middleware, so this option also
+ * disables the client's built-in retry to avoid retrying each request twice
+ * (which would multiply out to `maxRetries * maxRetries` attempts). Pass
+ * `{ retry: false }` if you would rather keep the client's built-in retry.
+ *
+ * The circuit breaker instance is attached to the client and reachable via
+ * `client.circuitBreaker` for monitoring.
  *
  * @example
  * ```typescript
  * import { JiraClient, withResilience } from '@felixgeelhaar/jira-sdk';
  *
  * const client = new JiraClient(
- *   { host: '...', auth: '...' },
+ *   { host: '...', auth: apiTokenAuth },
  *   withResilience()
  * );
+ *
+ * console.log(client.circuitBreaker?.getStats());
  * ```
  */
-export function withResilience(config?: ResilienceConfig) {
-  const { middleware, circuitBreaker } = createResilienceMiddleware(
-    config ?? DEFAULT_RESILIENCE_CONFIG
-  );
+export function withResilience(config?: ResilienceConfig): JiraClientOption {
+  const resolved = config ?? DEFAULT_RESILIENCE_CONFIG;
+  const { middleware, circuitBreaker } = createResilienceMiddleware(resolved);
 
-  // Return a function that modifies the internal config
-  // This will be used by the JiraClient constructor
-  return (internalConfig: { middleware?: Middleware[] }): void => {
-    internalConfig.middleware = [middleware, ...(internalConfig.middleware ?? [])];
-
-    // Attach circuit breaker to config for monitoring
-    (internalConfig as { circuitBreaker: CircuitBreaker | undefined }).circuitBreaker =
-      circuitBreaker;
-  };
+  return (clientConfig) => ({
+    ...clientConfig,
+    // Resilience middleware runs outermost, ahead of any user middleware.
+    middleware: [middleware, ...(clientConfig.middleware ?? [])],
+    // The resilience stack owns retry when it is enabled; disable the
+    // client's built-in retry so the two do not compound.
+    ...(resolved.retry !== false && { retryEnabled: false }),
+    ...(circuitBreaker !== undefined && { circuitBreaker }),
+  });
 }
 
 // Re-export types for convenience

@@ -114,10 +114,12 @@ export class HttpClient {
     options?: RequestOptions
   ): Promise<HttpResponse<T>> {
     return this.request<T>({
+      ...options,
       method: 'GET',
       url: path,
-      params,
-      ...options,
+      // Merge rather than let one clobber the other: callers may pass params
+      // positionally and additionally supply some via options.
+      params: { ...params, ...options?.params },
     });
   }
 

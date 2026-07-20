@@ -11,3 +11,7 @@ export * from './attachment.js';
 export * from './worklog.js';
 export * from './link.js';
 export * from './watcher.js';
+
+// Nil-safe accessors and ADF-aware setters
+export * from './accessors.js';
+export * from './builders.js';

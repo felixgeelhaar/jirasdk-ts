@@ -10,13 +10,19 @@ export class ValidationError extends JiraSdkError {
   /** Validation issues from Zod */
   readonly issues: z.core.$ZodIssue[];
 
-  constructor(message: string, zodError: ZodError) {
+  /**
+   * @param message Human-readable description of what failed.
+   * @param zodError The underlying Zod error, when the failure came from schema
+   * validation. Omit it for validation that is not schema-driven — for example
+   * a missing environment variable — in which case {@link issues} is empty.
+   */
+  constructor(message: string, zodError?: ZodError) {
     super(message, {
       context: {
-        issues: zodError.issues,
+        issues: zodError?.issues ?? [],
       },
     });
-    this.issues = zodError.issues;
+    this.issues = zodError?.issues ?? [];
   }
 
   /**

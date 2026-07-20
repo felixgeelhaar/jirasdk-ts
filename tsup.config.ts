@@ -1,6 +1,11 @@
 import { defineConfig } from 'tsup';
 
+import pkg from './package.json' with { type: 'json' };
+
 export default defineConfig({
+  define: {
+    __SDK_VERSION__: JSON.stringify(pkg.version),
+  },
   entry: {
     index: 'src/index.ts',
     'auth/index': 'src/auth/index.ts',

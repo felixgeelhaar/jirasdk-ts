@@ -199,6 +199,15 @@ export interface RequestOptions {
   headers?: Record<string, string> | undefined;
 
   /**
+   * Query-string parameters for this request.
+   *
+   * Available on every verb, not just GET — Jira attaches query parameters to
+   * POST, PUT and DELETE endpoints too (`expand`, `notifyUsers`,
+   * `replaceWith`, and so on).
+   */
+  params?: Record<string, string | number | boolean | string[] | undefined> | undefined;
+
+  /**
    * Custom metadata passed to middleware
    */
   metadata?: Record<string, unknown> | undefined;

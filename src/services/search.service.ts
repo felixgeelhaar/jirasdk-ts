@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { BaseService } from './base.service.js';
-import { IssueSchema, type Issue } from '../schemas/index.js';
+import { IssueSchema, IssueFieldsSchema, type Issue } from '../schemas/index.js';
 
 /**
  * Search result schema
@@ -17,6 +17,93 @@ const SearchResultSchema = z.object({
 });
 
 export type SearchResult = z.infer<typeof SearchResultSchema>;
+
+/**
+ * Issue shape returned by the Enhanced JQL Search API.
+ *
+ * The enhanced endpoint is field-selective: unless you ask for `*all` /
+ * `*navigable`, Jira returns only the fields you named (by default just the
+ * issue ID). Every field is therefore optional here — validating against the
+ * full {@link IssueSchema} would reject perfectly valid, sparse responses.
+ */
+const SearchJqlIssueSchema = IssueSchema.extend({
+  fields: IssueFieldsSchema.partial().optional(),
+});
+
+export type SearchJqlIssue = z.infer<typeof SearchJqlIssueSchema>;
+
+/**
+ * Enhanced JQL search result schema
+ *
+ * Note: there is no `total` — the enhanced endpoint deliberately omits it for
+ * performance. Pagination is driven by `nextPageToken`.
+ */
+const SearchJqlResultSchema = z.object({
+  issues: z.array(SearchJqlIssueSchema),
+  nextPageToken: z.string().optional(),
+  maxResults: z.number().optional(),
+  names: z.record(z.string(), z.string()).optional(),
+  schema: z.record(z.string(), z.unknown()).optional(),
+  warningMessages: z.array(z.string()).optional(),
+});
+
+export type SearchJqlResult = z.infer<typeof SearchJqlResultSchema>;
+
+/**
+ * Options for the Enhanced JQL Search API (`POST /rest/api/3/search/jql`)
+ */
+export interface SearchJqlOptions {
+  /**
+   * JQL query string (required)
+   */
+  jql: string;
+
+  /**
+   * Fields to include in the response.
+   *
+   * IMPORTANT: this endpoint does NOT default to navigable fields. If you omit
+   * `fields`, Jira returns the issue ID only — `issue.fields` will be
+   * `undefined`. Pass `['*all']` for every field, `['*navigable']` for the
+   * legacy default, or an explicit list such as `['summary', 'status']`.
+   */
+  fields?: string[];
+
+  /**
+   * Sections to expand
+   */
+  expand?: string[];
+
+  /**
+   * Maximum results per page. Up to 5000 when few fields are requested;
+   * the server default (typically 50) applies when omitted.
+   */
+  maxResults?: number;
+
+  /**
+   * Pagination token from the previous response. Omit for the first page.
+   */
+  nextPageToken?: string;
+
+  /**
+   * Request fields by key instead of ID
+   */
+  fieldsByKeys?: boolean;
+
+  /**
+   * Issue properties to include
+   */
+  properties?: string[];
+
+  /**
+   * Validate the JQL before executing
+   */
+  validateQuery?: 'strict' | 'warn' | 'none';
+}
+
+/**
+ * Default page size used by {@link SearchService.iterateJql}, matching the Go SDK.
+ */
+const DEFAULT_JQL_PAGE_SIZE = 100;
 
 /**
  * Search options
@@ -88,7 +175,15 @@ export interface SearchOptions {
  */
 export class SearchService extends BaseService {
   /**
-   * Execute a JQL search
+   * Execute a JQL search against the legacy search endpoint
+   *
+   * `POST /rest/api/3/search`
+   *
+   * @param options - Search options (JQL plus offset pagination)
+   * @returns A page of results including a `total` count
+   *
+   * @deprecated Use {@link SearchService.searchJql} instead. Atlassian is
+   * retiring `/rest/api/3/search` in favour of the Enhanced JQL Search API.
    */
   async search(options: SearchOptions): Promise<SearchResult> {
     const body = {
@@ -107,6 +202,12 @@ export class SearchService extends BaseService {
 
   /**
    * Convenience method for simple JQL search
+   *
+   * @param query - JQL query string
+   * @param options - Additional search options
+   * @returns A page of results
+   *
+   * @deprecated Use {@link SearchService.searchJql} instead.
    */
   async jql(query: string, options?: Omit<SearchOptions, 'jql'>): Promise<SearchResult> {
     return this.search({ jql: query, ...options });
@@ -121,6 +222,8 @@ export class SearchService extends BaseService {
    *   console.log(issue.key, issue.fields.summary);
    * }
    * ```
+   *
+   * @deprecated Use {@link SearchService.iterateJql} instead.
    */
   async *iterate(
     jql: string,
@@ -150,6 +253,8 @@ export class SearchService extends BaseService {
   /**
    * Get all issues matching a JQL query (loads all pages into memory)
    * Use with caution for large result sets - prefer iterate() instead
+   *
+   * @deprecated Use {@link SearchService.allJql} instead.
    */
   async all(jql: string, options?: Omit<SearchOptions, 'jql' | 'startAt'>): Promise<Issue[]> {
     const issues: Issue[] = [];

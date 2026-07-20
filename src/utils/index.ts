@@ -219,6 +219,96 @@ export function createDeferred<T>(): {
 }
 
 /**
+ * Seconds per Jira duration unit.
+ *
+ * Note: these are calendar units (1d = 24h, 1w = 7d), matching the Go SDK's
+ * `FormatDuration`. A Jira site configured with a working day of 8h and a
+ * working week of 5d will render the same number of seconds differently in its
+ * UI — convert with the site's `timeTrackingConfiguration` if that matters.
+ */
+const DURATION_UNITS = {
+  w: 7 * 24 * 3600,
+  d: 24 * 3600,
+  h: 3600,
+  m: 60,
+  s: 1,
+} as const;
+
+const DURATION_SYNTAX = /^(?:\d+(?:\.\d+)?\s*[wdhms]?\s*)+$/i;
+const DURATION_TOKEN = /(\d+(?:\.\d+)?)\s*([wdhms])?/gi;
+
+/**
+ * Parse a Jira duration string into seconds.
+ *
+ * Accepts the units Jira uses — `w`, `d`, `h`, `m`, `s` — in any order, with
+ * or without spaces. A bare number is interpreted as minutes, as Jira does.
+ *
+ * @param value - Duration string, e.g. `'3h 30m'`, `'1d4h'`, `'90'`
+ * @returns The duration in whole seconds
+ * @throws {Error} If the string is empty or not a valid duration
+ *
+ * @example
+ * ```ts
+ * parseDuration('3h 30m'); // 12600
+ * parseDuration('1d 4h');  // 100800
+ * ```
+ */
+export function parseDuration(value: string): number {
+  const trimmed = value.trim();
+
+  if (trimmed === '' || !DURATION_SYNTAX.test(trimmed)) {
+    throw new Error(`Invalid duration: ${JSON.stringify(value)}. Expected a string like "3h 30m".`);
+  }
+
+  let total = 0;
+  DURATION_TOKEN.lastIndex = 0;
+
+  for (const match of trimmed.matchAll(DURATION_TOKEN)) {
+    const amount = Number(match[1]);
+    const unit = (match[2] ?? 'm').toLowerCase() as keyof typeof DURATION_UNITS;
+    total += amount * DURATION_UNITS[unit];
+  }
+
+  return Math.round(total);
+}
+
+/**
+ * Format a number of seconds as a Jira duration string.
+ *
+ * Uses the same calendar units as {@link parseDuration}, so the two round-trip.
+ * Components that would be zero are omitted; sub-minute remainders are dropped.
+ *
+ * @param seconds - A non-negative duration in seconds
+ * @returns The duration string, e.g. `'3h 30m'`; `'0m'` for zero
+ * @throws {Error} If `seconds` is negative or not a finite number
+ *
+ * @example
+ * ```ts
+ * formatDuration(12600);  // '3h 30m'
+ * formatDuration(100800); // '1d 4h'
+ * ```
+ */
+export function formatDuration(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    throw new Error(`Invalid duration in seconds: ${String(seconds)}. Expected a non-negative number.`);
+  }
+
+  let remaining = Math.floor(seconds);
+  const parts: string[] = [];
+
+  for (const unit of ['w', 'd', 'h', 'm'] as const) {
+    const size = DURATION_UNITS[unit];
+    const count = Math.floor(remaining / size);
+    if (count > 0) {
+      parts.push(`${count}${unit}`);
+      remaining -= count * size;
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' ') : '0m';
+}
+
+/**
  * Parse environment variable as number
  */
 export function parseEnvNumber(value: string | undefined, defaultValue: number): number {
