@@ -255,6 +255,166 @@ describe('SearchService', () => {
     });
   });
 
+  describe('searchJql', () => {
+    it('should post to the enhanced endpoint with only the jql field by default', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse({ issues: [] }));
+
+      const result = await service.searchJql({ jql: 'project = PROJECT' });
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        '/rest/api/3/search/jql',
+        { jql: 'project = PROJECT' },
+        undefined
+      );
+      expect(result.issues).toHaveLength(0);
+      expect(result.nextPageToken).toBeUndefined();
+    });
+
+    it('should pass all enhanced options through', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse({ issues: [] }));
+
+      await service.searchJql({
+        jql: 'project = PROJECT',
+        fields: ['*all'],
+        expand: ['changelog'],
+        maxResults: 5000,
+        nextPageToken: 'token-1',
+        fieldsByKeys: true,
+        properties: ['prop'],
+        validateQuery: 'strict',
+      });
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        '/rest/api/3/search/jql',
+        {
+          jql: 'project = PROJECT',
+          fields: ['*all'],
+          expand: ['changelog'],
+          maxResults: 5000,
+          nextPageToken: 'token-1',
+          fieldsByKeys: true,
+          properties: ['prop'],
+          validateQuery: 'strict',
+        },
+        undefined
+      );
+    });
+
+    it('should accept id-only issues (the default field selection)', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(
+        createMockResponse({
+          issues: [
+            {
+              id: '10001',
+              key: 'PROJECT-1',
+              self: 'https://example.atlassian.net/rest/api/3/issue/10001',
+            },
+          ],
+          nextPageToken: 'next',
+        })
+      );
+
+      const result = await service.searchJql({ jql: 'project = PROJECT' });
+
+      expect(result.issues[0]?.fields).toBeUndefined();
+      expect(result.nextPageToken).toBe('next');
+    });
+
+    it('should accept partially populated fields', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(
+        createMockResponse({
+          issues: [
+            {
+              id: '10001',
+              key: 'PROJECT-1',
+              self: 'https://example.atlassian.net/rest/api/3/issue/10001',
+              fields: { summary: 'Only a summary' },
+            },
+          ],
+        })
+      );
+
+      const result = await service.searchJql({ jql: 'project = PROJECT', fields: ['summary'] });
+
+      expect(result.issues[0]?.fields?.summary).toBe('Only a summary');
+    });
+
+    it('should reject a malformed response', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse({ issues: 'nope' }));
+
+      await expect(service.searchJql({ jql: 'project = PROJECT' })).rejects.toThrow();
+    });
+  });
+
+  describe('iterateJql', () => {
+    it('should follow nextPageToken until it is absent', async () => {
+      vi.mocked(mockHttp.post)
+        .mockResolvedValueOnce(
+          createMockResponse({
+            issues: [createMockIssue('PROJECT-1'), createMockIssue('PROJECT-2')],
+            nextPageToken: 'token-2',
+          })
+        )
+        .mockResolvedValueOnce(
+          createMockResponse({ issues: [createMockIssue('PROJECT-3')] })
+        );
+
+      const issues = [];
+      for await (const issue of service.iterateJql('project = PROJECT', { fields: ['*all'] })) {
+        issues.push(issue);
+      }
+
+      expect(issues).toHaveLength(3);
+      expect(mockHttp.post).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(mockHttp.post).mock.calls[0]?.[1]).toEqual(
+        expect.objectContaining({ maxResults: 100 })
+      );
+      expect(vi.mocked(mockHttp.post).mock.calls[1]?.[1]).toEqual(
+        expect.objectContaining({ nextPageToken: 'token-2' })
+      );
+    });
+
+    it('should stop on an empty page even if a token is returned', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(
+        createMockResponse({ issues: [], nextPageToken: 'token-2' })
+      );
+
+      const issues = [];
+      for await (const issue of service.iterateJql('project = PROJECT')) {
+        issues.push(issue);
+      }
+
+      expect(issues).toHaveLength(0);
+      expect(mockHttp.post).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('allJql', () => {
+    it('should collect every page into an array', async () => {
+      vi.mocked(mockHttp.post)
+        .mockResolvedValueOnce(
+          createMockResponse({
+            issues: [createMockIssue('PROJECT-1')],
+            nextPageToken: 'token-2',
+          })
+        )
+        .mockResolvedValueOnce(
+          createMockResponse({ issues: [createMockIssue('PROJECT-2')] })
+        );
+
+      const issues = await service.allJql('project = PROJECT', {
+        fields: ['*navigable'],
+        maxResults: 10,
+      });
+
+      expect(issues).toHaveLength(2);
+      expect(issues[0]?.key).toBe('PROJECT-1');
+      expect(vi.mocked(mockHttp.post).mock.calls[0]?.[1]).toEqual(
+        expect.objectContaining({ maxResults: 10, fields: ['*navigable'] })
+      );
+    });
+  });
+
   describe('count', () => {
     it('should return the total count', async () => {
       const mockResult = {

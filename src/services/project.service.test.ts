@@ -237,6 +237,189 @@ describe('ProjectService', () => {
     });
   });
 
+  describe('components', () => {
+    const mockComponent = {
+      self: 'https://example.atlassian.net/rest/api/3/component/10000',
+      id: '10000',
+      name: 'Frontend',
+      description: 'Frontend components',
+      project: 'PROJECT',
+      projectId: 10000,
+      assigneeType: 'PROJECT_DEFAULT',
+    };
+
+    it('should create a component', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse(mockComponent));
+
+      const result = await service.createComponent({
+        name: 'Frontend',
+        project: 'PROJECT',
+        description: 'Frontend components',
+      });
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        '/rest/api/3/component',
+        expect.objectContaining({ name: 'Frontend', project: 'PROJECT' }),
+        undefined
+      );
+      expect(result.id).toBe('10000');
+    });
+
+    it('should reject a component input without a name', async () => {
+      await expect(service.createComponent({ name: '', project: 'PROJECT' })).rejects.toThrow();
+    });
+
+    it('should update a component', async () => {
+      vi.mocked(mockHttp.put).mockResolvedValueOnce(
+        createMockResponse({ ...mockComponent, name: 'UI' })
+      );
+
+      const result = await service.updateComponent('10000', { name: 'UI' });
+
+      expect(mockHttp.put).toHaveBeenCalledWith(
+        '/rest/api/3/component/10000',
+        { name: 'UI' },
+        undefined
+      );
+      expect(result.name).toBe('UI');
+    });
+
+    it('should get a component', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockComponent));
+
+      const result = await service.getComponent('10000');
+
+      expect(mockHttp.get).toHaveBeenCalledWith('/rest/api/3/component/10000', undefined, undefined);
+      expect(result.name).toBe('Frontend');
+    });
+
+    it('should delete a component', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.deleteComponent('10000', { moveIssuesTo: '10001' });
+
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: '/rest/api/3/component/10000',
+        params: { moveIssuesTo: '10001' },
+      });
+    });
+
+    it('should list project components', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse([mockComponent]));
+
+      const result = await service.listProjectComponents('PROJECT');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/project/PROJECT/components',
+        undefined,
+        undefined
+      );
+      expect(result).toHaveLength(1);
+    });
+
+    it('should reject an invalid component response', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ id: 10000 }));
+
+      await expect(service.getComponent('10000')).rejects.toThrow();
+    });
+  });
+
+  describe('versions', () => {
+    const mockVersion = {
+      self: 'https://example.atlassian.net/rest/api/3/version/10000',
+      id: '10000',
+      name: 'v1.0.0',
+      description: 'First release',
+      archived: false,
+      released: false,
+      releaseDate: '2024-12-31',
+      projectId: 10000,
+    };
+
+    it('should create a version', async () => {
+      vi.mocked(mockHttp.post).mockResolvedValueOnce(createMockResponse(mockVersion));
+
+      const result = await service.createVersion({
+        name: 'v1.0.0',
+        project: 'PROJECT',
+        releaseDate: '2024-12-31',
+      });
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        '/rest/api/3/version',
+        expect.objectContaining({ name: 'v1.0.0', project: 'PROJECT', releaseDate: '2024-12-31' }),
+        undefined
+      );
+      expect(result.name).toBe('v1.0.0');
+    });
+
+    it('should reject a release date that is not YYYY-MM-DD', async () => {
+      await expect(
+        service.createVersion({ name: 'v1', project: 'PROJECT', releaseDate: '31-12-2024' })
+      ).rejects.toThrow();
+    });
+
+    it('should update a version', async () => {
+      vi.mocked(mockHttp.put).mockResolvedValueOnce(
+        createMockResponse({ ...mockVersion, released: true })
+      );
+
+      const result = await service.updateVersion('10000', { released: true });
+
+      expect(mockHttp.put).toHaveBeenCalledWith(
+        '/rest/api/3/version/10000',
+        { released: true },
+        undefined
+      );
+      expect(result.released).toBe(true);
+    });
+
+    it('should get a version with expand options', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse(mockVersion));
+
+      const result = await service.getVersion('10000', { expand: ['operations'] });
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/version/10000',
+        { expand: 'operations' },
+        undefined
+      );
+      expect(result.id).toBe('10000');
+    });
+
+    it('should delete a version', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(createMockResponse(null));
+
+      await service.deleteVersion('10000', { moveFixIssuesTo: '10001' });
+
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: '/rest/api/3/version/10000',
+        params: { moveFixIssuesTo: '10001' },
+      });
+    });
+
+    it('should list project versions', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse([mockVersion]));
+
+      const result = await service.listProjectVersions('PROJECT');
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        '/rest/api/3/project/PROJECT/versions',
+        undefined,
+        undefined
+      );
+      expect(result).toHaveLength(1);
+    });
+
+    it('should reject an invalid version response', async () => {
+      vi.mocked(mockHttp.get).mockResolvedValueOnce(createMockResponse({ id: 10000 }));
+
+      await expect(service.getVersion('10000')).rejects.toThrow();
+    });
+  });
+
   describe('getRecent', () => {
     it('should get recent projects', async () => {
       const mockProjects = [createMockProject('PROJ1'), createMockProject('PROJ2')];

@@ -26,6 +26,18 @@ export * from './auth/index.js';
 // HTTP transport, middleware, circuit breaker
 export * from './transport/index.js';
 
+// ADF (Atlassian Document Format) builder
+export * from './adf/index.js';
+
+// Typed custom-field accessors
+export * from './custom-fields/index.js';
+
+// JQL query builder and issue-URL parsing
+export * from './jql/index.js';
+
+// Shared pagination primitives
+export * from './pagination/index.js';
+
 // Resilience presets
 export {
   createResilienceMiddleware,
