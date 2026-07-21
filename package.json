@@ -1,6 +1,6 @@
 {
   "name": "@felixgeelhaar/jira-sdk",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "TypeScript SDK for the Atlassian Jira Cloud REST API - type-safe, Zod-validated, with built-in resilience",
   "keywords": [
     "jira",
