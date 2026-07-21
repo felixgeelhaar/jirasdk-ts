@@ -10,12 +10,12 @@ hooks:
   pre_commit: true
   pre_push: true
 commands:
-  # Mapped to this pnpm workspace's real root scripts. Named 'eslint'/'testrun'
-  # (not warden's built-in 'lint'/'test') so warden runs THESE exact scripts —
-  # CI parity, not warden's own heuristics. `lint` here is real ESLint
-  # (eslint packages/*/src); `build` is required first because the monorepo's
-  # cross-package typecheck/test resolve against built workspace packages, which
-  # is exactly the order every ci.yml job uses.
+  # Mapped to this package's real root scripts. Named 'eslint'/'testrun' (not
+  # warden's built-in 'lint'/'test') so warden runs THESE exact scripts — CI
+  # parity, not warden's own heuristics. `lint` here is real ESLint (eslint
+  # src). Since the repo collapsed to a single package, typecheck and test no
+  # longer need a prior build to resolve cross-package output; build stays in
+  # pre_push only to catch bundler-level breakage before it reaches CI.
   typecheck: pnpm typecheck
   formatcheck: pnpm format:check
   eslint: pnpm lint
@@ -29,8 +29,7 @@ steps:
     - typecheck
     - formatcheck
   # Full CI parity on push, mirroring ci.yml (Lint / Type Check / Test / Build):
-  # build first, then eslint, typecheck, format check, and the test matrix's
-  # command. No npm-audit step — this fleet uses nox (nox-scan.yml) as the
+  # eslint, typecheck, format check, the test matrix's command, and the build. No npm-audit step — this fleet uses nox (nox-scan.yml) as the
   # single dependency/security source of truth, not npm audit.
   pre_push:
     - rebase

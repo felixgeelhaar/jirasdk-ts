@@ -30,9 +30,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm build
-
       - name: Run ESLint
         run: pnpm lint
 
@@ -57,9 +54,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm build
 
       - name: Run type check
         run: pnpm typecheck
@@ -87,11 +81,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm build
-
       - name: Run tests
         run: pnpm test
+
+      - name: Run tests with coverage
+        # Thresholds live in vitest.config.ts; this job is what enforces them.
+        # Only on one Node version - coverage does not vary by runtime.
+        if: matrix.node-version == 20
+        run: pnpm test:coverage
 
   build:
     name: Build
@@ -112,5 +109,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
+      - name: Build
         run: pnpm build

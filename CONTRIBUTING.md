@@ -116,17 +116,25 @@ git push origin your-feature-branch
 ## Project Structure
 
 ```
-packages/
-├── core/           # Shared SDK infrastructure
-│   ├── auth/       # Authentication
-│   ├── errors/     # Error handling
-│   ├── transport/  # HTTP client
-│   └── utils/      # Utilities
-└── jira/           # Jira API client
-    ├── client/     # Client config
-    ├── schemas/    # Validation
-    └── services/   # API services
+src/
+├── adf/           # Atlassian Document Format builder
+├── auth/          # Authentication providers
+├── client/        # Client, functional options, env config
+├── custom-fields/ # Typed custom-field accessors
+├── errors/        # Error hierarchy
+├── jql/           # JQL query builder and escaping
+├── logging/       # Logging abstraction
+├── pagination/    # Shared pagination primitives
+├── schemas/       # Zod schemas, one directory per domain
+├── services/      # Domain services (27)
+├── transport/     # HTTP client, middleware, circuit breaker
+└── utils/         # Utilities
 ```
+
+Adding a service means: a schema directory under `src/schemas/<domain>/`, a
+`src/services/<domain>.service.ts` extending `BaseService`, a colocated test,
+and wiring into the three barrels (`src/schemas/index.ts`,
+`src/services/index.ts`) plus a lazy getter on `JiraClient`.
 
 ## Documentation
 

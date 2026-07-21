@@ -43,7 +43,6 @@ body:
       multiple: true
       options:
         - "@felixgeelhaar/jira-sdk"
-        - "@felixgeelhaar/sdk-core"
 
   - type: textarea
     id: highlights
