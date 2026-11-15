@@ -12,7 +12,7 @@ overrides:
   js-yaml@4: '>=4.3.1'
   nanoid: '>=3.3.18'
   postcss: '>=8.5.23'
-  vite: '>=8.3.8'
+  vite: ^8.3.8
 
 importers:
 
@@ -754,7 +754,7 @@ packages:
     resolution: {integrity: sha512-5umB9/jlWcqVS6fsrFmv5Gdnpu6wAUio/lEOwAmvB7v+lFo/IW2B9FhAD0p19GCULTgMzLCdUmuCDCnAzWgppQ==}
     peerDependencies:
       msw: ^2.4.9 || ^3.0.0
-      vite: '>=8.3.8'
+      vite: ^8.3.8
     peerDependenciesMeta:
       msw:
         optional: true
@@ -1664,7 +1664,7 @@ packages:
       '@vitest/ui': 5.1.0
       happy-dom: '*'
       jsdom: '*'
-      vite: '>=8.3.8'
+      vite: ^8.3.8
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
