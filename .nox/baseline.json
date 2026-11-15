@@ -5344,6 +5344,330 @@
       "severity": "",
       "reason": "False positive: id-token: write is a GitHub Actions OIDC permission declaration in release.yml, not a hardcoded secret (nox 1.7.1 fingerprint; supersedes the stale 1.6.0 fingerprint for the same finding)",
       "created_at": "2026-07-11T11:22:03.399816Z"
+    },
+    {
+      "fingerprint": "be245a4499fe01a73e9664baf0ed8c855e243ef4da2b278bd541e113a9dfae2e",
+      "rule_id": "IAC-306",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "medium",
+      "reason": "Reviewed: id-token: write is required for npm trusted publishing with --provenance in the release job; scoped to that job only",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:23:46.80703Z"
+    },
+    {
+      "fingerprint": "8378df7a1d4adb5806616a668bc89e456b48fe9b7212ca5799b5b8eddbe0ae9c",
+      "rule_id": "IAC-314",
+      "file_path": ".github/workflows/nox-remediate.yml",
+      "severity": "medium",
+      "reason": "Reviewed: release needs contents/pull-requests write to open the changesets release PR and tag; nox-remediate needs write to push remediation branches; both scoped per workflow",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:24:27.358345Z"
+    },
+    {
+      "fingerprint": "e37e2faa5f7d812400d1323a31d22e93b710b881ea06f3b656d724454d47a8f4",
+      "rule_id": "IAC-314",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "medium",
+      "reason": "Reviewed: release needs contents/pull-requests write to open the changesets release PR and tag; nox-remediate needs write to push remediation branches; both scoped per workflow",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:24:27.358345Z"
+    },
+    {
+      "fingerprint": "8c9a05e7d0c8a05b61d4c18aefce8e2dc91a85c3456246a1c92bea30dbb416d8",
+      "rule_id": "IAC-309",
+      "file_path": ".github/workflows/ci.yml",
+      "severity": "low",
+      "reason": "Reviewed: cancel-in-progress is intentional to drop superseded CI/scan runs on the same ref",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:24:49.190775Z"
+    },
+    {
+      "fingerprint": "530e8464b73bb94d797aa233bcd4b2ea933dd8644a2b0a15d0bb6b7ba128980d",
+      "rule_id": "IAC-309",
+      "file_path": ".github/workflows/nox-scan.yml",
+      "severity": "low",
+      "reason": "Reviewed: cancel-in-progress is intentional to drop superseded CI/scan runs on the same ref",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:24:49.190775Z"
+    },
+    {
+      "fingerprint": "efffd45e45bdf218052ebd23a0a2fc2295219290f6341d868fed455c871b6993",
+      "rule_id": "IAC-155",
+      "file_path": ".github/workflows/nox-remediate.yml",
+      "severity": "medium",
+      "reason": "Reviewed: manual dispatch of the weekly nox-remediate workflow is intentional; only repo writers can dispatch and it delegates to the org reusable workflow",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:25:22.767324Z"
+    },
+    {
+      "fingerprint": "52922952e40b8c5ebd4fef0969dd782d57266e9ecccc4e9bddc9be74f0f6daa2",
+      "rule_id": "IAC-308",
+      "file_path": ".github/workflows/nox-remediate.yml",
+      "severity": "low",
+      "reason": "Reviewed: manual dispatch of the weekly nox-remediate workflow is intentional; only repo writers can dispatch and it delegates to the org reusable workflow",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:25:22.767324Z"
+    },
+    {
+      "fingerprint": "685a2f4b9461897e460c17088ff2b04ee85d6586cb4442b69adf3ec2c8e9ee21",
+      "rule_id": "IAC-153",
+      "file_path": ".github/workflows/nox-scan.yml",
+      "severity": "medium",
+      "reason": "Reviewed: upload-artifact is SHA-pinned; comment text matched the heuristic, artifact holds only scan results",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:26:05.054127Z"
+    },
+    {
+      "fingerprint": "6889c2164e2f62c3c3fe62644dcfff327ee9524c8dea55d505ecb23fd7d47b77",
+      "rule_id": "AI-050",
+      "file_path": "src/client/client.test.ts",
+      "severity": "medium",
+      "reason": "False positive: unit test asserting maxRetries boundary values, no AI/LLM usage",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:26:13.459798Z"
+    },
+    {
+      "fingerprint": "0c9da5ff4a0c0dfae047444cb4e3931d07b4d088ef0dd2a1671a596631ecac59",
+      "rule_id": "AI-050",
+      "file_path": "src/client/client.test.ts",
+      "severity": "medium",
+      "reason": "False positive: unit test asserting maxRetries boundary values, no AI/LLM usage",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:26:33.234422Z"
+    },
+    {
+      "fingerprint": "4c5fd27541f2db904836d1cc77f3994d551020d10138e0727df23b541fed17f7",
+      "rule_id": "AI-050",
+      "file_path": "src/client/client.test.ts",
+      "severity": "medium",
+      "reason": "False positive: unit test asserting maxRetries boundary values, no AI/LLM usage",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:26:33.234422Z"
+    },
+    {
+      "fingerprint": "a4825f2de5bd2f5ec2418de8dd0cdfa223c20737db51e4e6aaf17d7b6899c228",
+      "rule_id": "SEC-080",
+      "file_path": "src/auth/basic.ts",
+      "severity": "medium",
+      "reason": "False positive: documentation example placeholder and env var NAME constants (JIRA_PASSWORD), not credentials",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:26:43.662327Z"
+    },
+    {
+      "fingerprint": "5120c581830fbe8a61de10d68a77b526c1a79d4c15dd350d61cf57288c2ae2a9",
+      "rule_id": "SEC-080",
+      "file_path": "src/client/env.ts",
+      "severity": "medium",
+      "reason": "False positive: documentation example placeholder and env var NAME constants (JIRA_PASSWORD), not credentials",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:26:43.662327Z"
+    },
+    {
+      "fingerprint": "8199d408b6c91f24181a000b7ab433c3fd49e17a9fecef2dad95701477e1e995",
+      "rule_id": "DATA-001",
+      "file_path": "src/client/env.test.ts",
+      "severity": "low",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:04.480102Z"
+    },
+    {
+      "fingerprint": "ff3c7193c0455fc6391650cf63c7be8b5d2d05f10355a0a42c334383aabfde4b",
+      "rule_id": "DATA-001",
+      "file_path": "src/client/env.ts",
+      "severity": "low",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:04.480102Z"
+    },
+    {
+      "fingerprint": "d6bbd6b744b5382925b87e114ded20396e3b279d28ed545c1d22b4db6d5f7645",
+      "rule_id": "DATA-001",
+      "file_path": ".env.example",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "6c36312128f5a55cd075253dfa18d9ffd897a46c72b797df506bd396da430439",
+      "rule_id": "DATA-001",
+      "file_path": "src/auth/api-token.ts",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "291735fd077fc9b7b37a2a93ca6cfa7f87f2c9589f8c31d45350b644835f42e6",
+      "rule_id": "DATA-001",
+      "file_path": "src/auth/auth.test.ts",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "f3422aebd641e76adbea0128d8690a2a63e8b925b0f8bf1614982f9f774029da",
+      "rule_id": "DATA-001",
+      "file_path": "src/client/client.test.ts",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "cb04cbd001ef9620463b032682bf2e2598cb3f66447884604af0c5980a2297c7",
+      "rule_id": "DATA-001",
+      "file_path": "src/client/client.ts",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "bf5ba14efdfd590e9d2fb8d8ee2b30e7a5802d942537df3f9d0b4d727f22acc5",
+      "rule_id": "DATA-001",
+      "file_path": "src/schemas/schemas.test.ts",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "eefba9f428df6bb37a9b66ce65e50f9ad6dcae04def664f492a8117703d3251f",
+      "rule_id": "DATA-001",
+      "file_path": "src/services/myself.service.test.ts",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "40bd01aefd28f3dff0fb0d9437f40a39e2c137da9bfd9b2599648eb83b32f6ff",
+      "rule_id": "DATA-001",
+      "file_path": "src/transport/http-client.test.ts",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "4fc6410386d1f24ad019e57d572e2d563e9f45861ec3715c11d3bacb124f78e6",
+      "rule_id": "DATA-001",
+      "file_path": "src/transport/transport.test.ts",
+      "severity": "medium",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:21.029938Z"
+    },
+    {
+      "fingerprint": "aae499185be165056db0e7a2c098e838ce28a9847a915f87dd4d4efc08ed6b1c",
+      "rule_id": "SEC-082",
+      "file_path": "src/transport/middleware.test.ts",
+      "severity": "medium",
+      "reason": "False positive: fake 'secret-token' fixture in unit tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:53.191878Z"
+    },
+    {
+      "fingerprint": "35e7dd4b8a3ea45134412119f255d30b7c0a20401f48784a7d16c9f345119441",
+      "rule_id": "SEC-082",
+      "file_path": "src/utils/utils.test.ts",
+      "severity": "medium",
+      "reason": "False positive: fake 'secret-token' fixture in unit tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:53.191878Z"
+    },
+    {
+      "fingerprint": "4b4e9c7f60bcc1710562a7fc7c7c33ea774905bc7161eb440d49c9b0d2230724",
+      "rule_id": "SEC-082",
+      "file_path": "src/utils/utils.test.ts",
+      "severity": "medium",
+      "reason": "False positive: fake 'secret-token' fixture in unit tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:27:53.191878Z"
+    },
+    {
+      "fingerprint": "e891a1b7dc1f62b6dfe940e36b9708ac26e692fb45ca76b254be47d41f07a2e5",
+      "rule_id": "SEC-163",
+      "file_path": "src/auth/api-token.ts",
+      "severity": "medium",
+      "reason": "False positive: Zod safeParse / schema property names matched the key-name heuristic, no key material",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:28:42.00142Z"
+    },
+    {
+      "fingerprint": "3eadffce02f761d8b275fae9c7ddfae33c94f6df95a121cba6528f10af91aa87",
+      "rule_id": "SEC-163",
+      "file_path": "src/auth/oauth2.ts",
+      "severity": "medium",
+      "reason": "False positive: Zod safeParse / schema property names matched the key-name heuristic, no key material",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:28:42.00142Z"
+    },
+    {
+      "fingerprint": "8698b722049c1228735c01cf116b560aed1b1470bcbfb09835bb973a3e75f5d1",
+      "rule_id": "SEC-163",
+      "file_path": "src/schemas/project/project.ts",
+      "severity": "medium",
+      "reason": "False positive: Zod safeParse / schema property names matched the key-name heuristic, no key material",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:28:42.00142Z"
+    },
+    {
+      "fingerprint": "0f227da7afcf3318ed28e10e1dc64f4d4c986f3c442f16c33eb46c5faa5ba02c",
+      "rule_id": "SEC-163",
+      "file_path": "src/services/field.service.test.ts",
+      "severity": "medium",
+      "reason": "False positive: Zod safeParse / schema property names matched the key-name heuristic, no key material",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:28:42.00142Z"
+    },
+    {
+      "fingerprint": "cbf945c7ec95915cc61868108b6a2ab2796213b08f02311348ee75b3ac0e1a7d",
+      "rule_id": "SEC-163",
+      "file_path": "src/services/field.service.ts",
+      "severity": "medium",
+      "reason": "False positive: Zod safeParse / schema property names matched the key-name heuristic, no key material",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:28:42.00142Z"
+    },
+    {
+      "fingerprint": "fe2a1355bb7dd7a8c30da7235411a2f208f1e2724ee32869552223f14b49b843",
+      "rule_id": "VULN-002",
+      "file_path": "pnpm-lock.yaml",
+      "severity": "medium",
+      "reason": "False positive: legitimate long-standing transitive packages (mz, safer-buffer, enquirer) flagged by name-similarity heuristic",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:29:21.565629Z"
+    },
+    {
+      "fingerprint": "d71bf82ad3aa3fc256bf653fc71061586c9d27c734c8b8996bd200040f3b19ae",
+      "rule_id": "VULN-002",
+      "file_path": "pnpm-lock.yaml",
+      "severity": "medium",
+      "reason": "False positive: legitimate long-standing transitive packages (mz, safer-buffer, enquirer) flagged by name-similarity heuristic",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:29:21.565629Z"
+    },
+    {
+      "fingerprint": "52d1521cd7d03f21e7f93b4f5768174bcd0ed5058db10897c7345954dc3c3cd4",
+      "rule_id": "VULN-002",
+      "file_path": "pnpm-lock.yaml",
+      "severity": "medium",
+      "reason": "False positive: legitimate long-standing transitive packages (mz, safer-buffer, enquirer) flagged by name-similarity heuristic",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:29:21.565629Z"
+    },
+    {
+      "fingerprint": "171b8a85070df857840c318ae0132938f2fe55c45ebe60f68d9ee0d033aebd8f",
+      "rule_id": "DATA-001",
+      "file_path": "src/client/env.test.ts",
+      "severity": "low",
+      "reason": "False positive: example/test email addresses in docs and tests",
+      "owner": "felixgeelhaar",
+      "created_at": "2026-11-15T10:32:00.83873Z"
     }
   ]
 }
