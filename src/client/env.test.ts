@@ -39,9 +39,9 @@ describe('createAuthFromEnv', () => {
 
   it('ignores a half-configured credential pair', () => {
     // Email without a token must not be mistaken for API token auth.
-    expect(createAuthFromEnv({ [ENV_VARS.email]: 'me@acme.com', [ENV_VARS.pat]: 'pat' }).type).toBe(
-      'pat'
-    );
+    expect(
+      createAuthFromEnv({ [ENV_VARS.email]: 'dev@acme.com', [ENV_VARS.pat]: 'pat' }).type
+    ).toBe('pat');
   });
 
   it('treats whitespace-only values as absent', () => {
