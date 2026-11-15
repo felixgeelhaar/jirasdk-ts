@@ -1,6 +1,6 @@
 # Jira SDK TypeScript
 
-[![security](https://raw.githubusercontent.com/felixgeelhaar/jirasdk-ts/main/.github/badges/security.svg)](https://github.com/felixgeelhaar/jirasdk-ts)
+[![nox security grade](.github/nox-badge.svg)](.github/workflows/nox-scan.yml)
 
 A type-safe, production-ready SDK for the Jira REST API with built-in resilience patterns.
 
